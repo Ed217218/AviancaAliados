@@ -80,7 +80,7 @@ public class ButtonPages {
                 wait.until(ExpectedConditions.visibilityOf(elemento));
                 
                 // Realizar hover
-            actions.moveToElement(elemento).build().perform();
+            //actions.moveToElement(elemento).build().perform();
                 
             String mouseOverScript = 
                 "var evObj = document.createEvent('MouseEvents');" +
