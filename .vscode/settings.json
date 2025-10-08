@@ -22,5 +22,6 @@
     },
     "peacock.color": "#215732",
     "java.debug.settings.onBuildFailureProceed": true,
-    "geminicodeassist.agentYoloMode": true
+    "geminicodeassist.agentYoloMode": true,
+    "github.copilot.nextEditSuggestions.enabled": true
 }

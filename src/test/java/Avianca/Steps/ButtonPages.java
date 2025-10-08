@@ -17,34 +17,37 @@ public class ButtonPages {
 
     private WebDriver driver;
     private WebDriverWait wait;
-    private Actions actions;
 
-    // ✅ LOCALIZADOR CORRECTO basado en el HTML real
+    // Localizador principal para login
     @FindBy(how = How.XPATH, using = "//button[@type='submit']")
     private WebElement btnLogin;
 
-    // ✅ LOCALIZADOR CORRECTO para "Solicitudes de Bloqueo"
-    // Usamos el ID único que encontramos en el HTML: horizontal-menu-item-103
-    @FindBy(how = How.ID, using = "horizontal-menu-item-103")
-    public WebElement btnSolicitudDeBloqueo;
+    
 
-    // ✅ LOCALIZADOR ALTERNATIVO usando clase y texto
-    @FindBy(how = How.XPATH, using = "//span[@class='horizontal-menu-title' and text()='Solicitudes de Bloqueo']")
-    public WebElement btnSolicitudDeBloqueoAlternativo;
 
-    // ✅ LOCALIZADOR CORRECTO para "Nueva Solicitud"  
-    // Usamos el ID único: horizontal-menu-item-102
-    @FindBy(how = How.ID, using = "horizontal-menu-item-102")
-    public WebElement btnNuevaSolicitud;
 
-    // ✅ LOCALIZADOR ALTERNATIVO para "Nueva Solicitud"
-    @FindBy(how = How.XPATH, using = "//span[@class='horizontal-menu-title' and text()='Nueva Solicitud']")
-    public WebElement btnNuevaSolicitudAlternativo;
+    
+    // ===== BOTONES DE ACCIÓN =====
+
+    @FindBy(how = How.XPATH, using = "//button[contains(text(),'Agregar Bloqueo')]")
+    private WebElement btnAgregarBloqueo;
+
+    @FindBy(how = How.XPATH, using = "//button[contains(text(),'Eliminación masiva de bloqueos')]")
+    private WebElement btnEliminacionMasiva;
+
+    @FindBy(how = How.XPATH, using = "//button[contains(text(),'Enviar')]")
+    private WebElement btnEnviar;
+
+    @FindBy(how = How.XPATH, using = "//button[contains(text(),'Nueva Solicitud')]")
+    private WebElement btnNuevaSolicitud;
+
+
+
+
 
     public ButtonPages(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        this.actions = new Actions(driver);
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20)); // Aumentamos a 20 segundos
         PageFactory.initElements(driver, this);
     }
 
@@ -58,13 +61,13 @@ public class ButtonPages {
             System.out.println("✅ Login realizado correctamente");
         } catch (Exception e) {
             System.err.println("❌ Error en login: " + e.getMessage());
-            throw e;
+            throw new RuntimeException("Fallo en login", e);
         }
     }
 
     /**
-     * 🎯 MÉTODO MEJORADO: Hover sobre "Solicitudes de Bloqueo"
-     * Este método implementa múltiples estrategias para mayor robustez
+     * 🎯 MÉTODO MEJORADO: Clic en "Solicitudes de Bloqueo" para desplegar submenú
+     * Ahora aseguramos que el menú se mantenga abierto el tiempo suficiente
      */
     public void btnSolicitudDeBloqueo() {
         try {
@@ -74,75 +77,104 @@ public class ButtonPages {
             
             if (elemento != null) {
                 // Hacer scroll al elemento si es necesario
-                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", elemento);
+                scrollToElement(elemento);
                 
-                // Esperar que sea visible
-                wait.until(ExpectedConditions.visibilityOf(elemento));
+                // Esperar que sea visible y clickeable
+                wait.until(ExpectedConditions.elementToBeClickable(elemento));
                 
-                // Realizar hover
-            //actions.moveToElement(elemento).build().perform();
+                // HACER CLIC PARA DESPLEGAR EL MENÚ
+                elemento.click();
+                System.out.println("✅ Clic realizado en 'Solicitudes de Bloqueo'");
                 
-            String mouseOverScript = 
-                "var evObj = document.createEvent('MouseEvents');" +
-                "evObj.initMouseEvent('mouseover',true,true,window,1,0,0,0,0," +
-                "false,false,false,false,0,null);" +
-                "arguments[0].dispatchEvent(evObj);";
-            
-            ((JavascriptExecutor) driver).executeScript(mouseOverScript, elemento);
-
-              
-              System.out.println("✅ Hover realizado en 'Solicitudes de Bloqueo'");
+                // Esperar a que se despliegue el submenú y se estabilice
+                boolean subMenuDesplegado = esperarSubMenuDesplegado();
                 
-                // Esperar a que se despliegue el submenú
-                Thread.sleep(1000);
-                
-                // Verificar que el submenú se desplegó
-                verificarSubMenuDesplegado();
+                if (subMenuDesplegado) {
+                    System.out.println("✅ Submenú desplegado correctamente");
+                    
+                    // Esperar adicional para asegurar que el menú no se cierre
+                    System.out.println("⏳ Esperando a que el menú se estabilice...");
+                    try {
+                        Thread.sleep(5000); // Espera de 5 segundos para estabilización
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    
+                    // Mover el mouse al submenú para mantenerlo abierto
+                    mantenerSubMenuAbierto();
+                    
+                } else {
+                    System.out.println("⚠️ El submenú no se desplegó después del clic");
+                    // Intentar alternativa: JavaScript
+                    intentarClickConJavaScript(elemento);
+                    esperarSubMenuDesplegado();
+                }
                 
             } else {
                 throw new RuntimeException("❌ No se encontró el elemento 'Solicitudes de Bloqueo'");
             }
             
         } catch (Exception e) {
-            System.err.println("❌ Error en hover sobre 'Solicitudes de Bloqueo': " + e.getMessage());
-
+            System.err.println("❌ Error en clic sobre 'Solicitudes de Bloqueo': " + e.getMessage());
+            throw new RuntimeException("Fallo al interactuar con 'Solicitudes de Bloqueo'", e);
         }
     }
 
     /**
-     * 🎯 MÉTODO MEJORADO: Clic en "Nueva Solicitud"
+     * 🎯 MÉTODO MEJORADO: Clic en "Nueva Solicitud" del submenú
+     * Ahora aseguramos que el clic se realice correctamente
      */
     public void btnNuevaSolicitud() {
         try {
             System.out.println("🔍 Buscando elemento 'Nueva Solicitud'...");
             
-            WebElement elemento = encontrarNuevaSolicitud();
             
-            if (elemento != null) {
-                // Hacer scroll al elemento
-                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", elemento);
+            // Esperar a que el elemento esté disponible
+            WebElement elemento = encontrarNuevaSolicitud();
+        /*   
+            WebElement elemento = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//span[@class='horizontal-menu-title' and text()='Nueva Solicitud']")
+            ));
+         */
+            
+            if (elemento != null && elemento.isDisplayed()) {
+                System.out.println("✅ Elemento 'Nueva Solicitud' encontrado y visible");
                 
-                // Esperar que sea clickeable
-                wait.until(ExpectedConditions.elementToBeClickable(elemento));
+                // Intentar múltiples estrategias para hacer clic
+                if (!intentarClicNormal(elemento)) {
+                    System.out.println("⚠️ Clic normal falló, intentando con Actions...");
+                    if (!intentarClicConActions(elemento)) {
+                        System.out.println("⚠️ Clic con Actions falló, intentando con JavaScript...");
+                        if (!intentarClickConJavaScript(elemento)) {
+                            throw new RuntimeException("❌ No se pudo hacer clic en 'Nueva Solicitud' con ningún método");
+                        }
+                    }
+                }
                 
-                // Hacer clic
-                elemento.click();
                 System.out.println("✅ Clic realizado en 'Nueva Solicitud'");
                 
                 // Verificar navegación
-                Thread.sleep(2000);
-                String urlActual = driver.getCurrentUrl();
-                System.out.println("📍 URL después del clic: " + urlActual);
+                wait.until(ExpectedConditions.urlContains("/OpeBlock/Index"));
+                System.out.println("✅ Navegación exitosa a /OpeBlock/Index");
                 
             } else {
-                throw new RuntimeException("❌ No se encontró el elemento 'Nueva Solicitud'");
+                throw new RuntimeException("❌ No se encontró el elemento 'Nueva Solicitud' o no está visible");
             }
             
         } catch (Exception e) {
             System.err.println("❌ Error en clic sobre 'Nueva Solicitud': " + e.getMessage());
-            // Intentar con JavaScript como último recurso
-            intentarClickConJavaScript();
-        
+            throw new RuntimeException("Fallo al interactuar con 'Nueva Solicitud'", e);
+        }
+    }
+
+    /**
+     * 🔧 MÉTODO AUXILIAR: Scroll a un elemento
+     */
+    private void scrollToElement(WebElement elemento) {
+        try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", elemento);
+        } catch (Exception e) {
+            System.out.println("⚠️ No se pudo hacer scroll al elemento: " + e.getMessage());
         }
     }
 
@@ -150,41 +182,33 @@ public class ButtonPages {
      * 🔧 MÉTODO AUXILIAR: Encuentra "Solicitudes de Bloqueo" con múltiples estrategias
      */
     private WebElement encontrarSolicitudDeBloqueo() {
-        // Array de localizadores en orden de preferencia
         By[] localizadores = {
             By.id("horizontal-menu-item-103"),
             By.xpath("//span[@class='horizontal-menu-title' and text()='Solicitudes de Bloqueo']"),
             By.xpath("//span[text()='Solicitudes de Bloqueo']"),
             By.xpath("//*[contains(text(), 'Solicitudes de Bloqueo')]")
         };
-
-        for (By localizador : localizadores) {
-            try {
-                List<WebElement> elementos = driver.findElements(localizador);
-                if (!elementos.isEmpty() && elementos.get(0).isDisplayed()) {
-                    System.out.println("✅ Encontrado con localizador: " + localizador);
-                    return elementos.get(0);
-                }
-            } catch (Exception e) {
-                System.out.println("⚠️ Falló localizador: " + localizador);
-            }
-        }
-        return null;
+        return encontrarElemento(localizadores);
     }
 
     /**
      * 🔧 MÉTODO AUXILIAR: Encuentra "Nueva Solicitud" con múltiples estrategias
      */
     private WebElement encontrarNuevaSolicitud() {
-        // Array de localizadores en orden de preferencia
         By[] localizadores = {
             By.id("horizontal-menu-item-102"),
             By.xpath("//span[@class='horizontal-menu-title' and text()='Nueva Solicitud']"),
             By.xpath("//span[text()='Nueva Solicitud']"),
             By.xpath("//*[contains(text(), 'Nueva Solicitud')]"),
-            By.xpath("//a[@href='/OpeBlock/Index']") // Basado en el href del HTML
+            By.xpath("//a[@href='/OpeBlock/Index']")
         };
+        return encontrarElemento(localizadores);
+    }
 
+    /**
+     * 🔧 MÉTODO AUXILIAR GENÉRICO: Encuentra un elemento con múltiples estrategias
+     */
+    private WebElement encontrarElemento(By[] localizadores) {
         for (By localizador : localizadores) {
             try {
                 List<WebElement> elementos = driver.findElements(localizador);
@@ -200,32 +224,171 @@ public class ButtonPages {
     }
 
     /**
-     * 🔧 MÉTODO AUXILIAR: Verifica que el submenú se desplegó
+     * 🔧 MÉTODO AUXILIAR: Espera a que el submenú se despliegue
+     * @return true si el submenú se desplegó correctamente
      */
-    private void verificarSubMenuDesplegado() {
+    private boolean esperarSubMenuDesplegado() {
         try {
-            // Buscar el div del submenú basado en el HTML
-            WebElement subMenu = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.id("horizontal-sub-menu-103")
-            ));
-            System.out.println("✅ Submenú desplegado correctamente");
+            System.out.println("⏳ Esperando a que el submenú se despliegue...");
+            // Esperar explícitamente a que el submenú sea visible
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("horizontal-sub-menu-103")));
+            // Verificar que "Nueva Solicitud" esté visible dentro del submenú
+            WebElement nuevaSolicitud = wait.until(ExpectedConditions.visibilityOfNestedElementsLocatedBy(
+                By.id("horizontal-sub-menu-103"),
+                By.xpath(".//span[text()='Nueva Solicitud']")
+            )).get(0);
+            
+            return nuevaSolicitud.isDisplayed();
+            
         } catch (Exception e) {
-            System.out.println("⚠️ No se pudo verificar el despliegue del submenú");
+            System.out.println("⚠️ Error esperando submenú: " + e.getMessage());
+            return false;
         }
     }
 
     /**
-     * 🔧 MÉTODO AUXILIAR: Último recurso - clic con JavaScript
+     * 🔧 MÉTODO AUXILIAR: Mantiene el submenú abierto moviendo el mouse
      */
-    private void intentarClickConJavaScript() {
+    private void mantenerSubMenuAbierto() {
         try {
-            WebElement elemento = encontrarNuevaSolicitud();
-            if (elemento != null) {
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", elemento);
-                System.out.println("✅ Clic realizado con JavaScript");
-            }
+            // Encontrar el submenú
+            WebElement subMenu = driver.findElement(By.id("horizontal-sub-menu-103"));
+            
+            // Crear objeto Actions
+            Actions actions = new Actions(driver);
+            
+            // Mover el mouse al centro del submenú para mantenerlo abierto
+            actions.moveToElement(subMenu, subMenu.getSize().width / 2, subMenu.getSize().height / 2).perform();
+            System.out.println("✅ Mouse movido al submenú para mantenerlo abierto");
+            
+            // Pequeña pausa para asegurar que el menú se mantenga abierto
+            Thread.sleep(500);
+            
         } catch (Exception e) {
-            System.err.println("❌ También falló el clic con JavaScript: " + e.getMessage());
+            System.out.println("⚠️ No se pudo mantener el submenú abierto: " + e.getMessage());
         }
     }
+
+    /**
+     * 🔧 MÉTODO AUXILIAR: Intenta hacer clic normal
+     * @return true si el clic fue exitoso
+     */
+    private boolean intentarClicNormal(WebElement elemento) {
+        try {
+            // Esperar a que sea clickeable
+            wait.until(ExpectedConditions.elementToBeClickable(elemento));
+            elemento.click();
+            return true;
+        } catch (Exception e) {
+            System.out.println("⚠️ Clic normal falló: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 🔧 MÉTODO AUXILIAR: Intenta hacer clic con Actions
+     * @return true si el clic fue exitoso
+     */
+    private boolean intentarClicConActions(WebElement elemento) {
+        try {
+            Actions actions = new Actions(driver);
+            actions.moveToElement(elemento).click().perform();
+            return true;
+        } catch (Exception e) {
+            System.out.println("⚠️ Clic con Actions falló: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 🔧 MÉTODO AUXILIAR: Clic con JavaScript como alternativa
+     * @param elemento Elemento sobre el que se hará clic
+     * @return true si el clic fue exitoso, false en caso contrario
+     */
+    private boolean intentarClickConJavaScript(WebElement elemento) {
+        try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", elemento);
+            System.out.println("✅ Clic realizado con JavaScript");
+            return true;
+        } catch (Exception e) {
+            System.err.println("❌ Falló el clic con JavaScript: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Método para hacer clic en el botón "Agregar Bloqueo"
+     
+    public void clickAgregarBloqueo() {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(btnAgregarBloqueo));
+            btnAgregarBloqueo.click();
+            System.out.println("✅ Se hizo clic en 'Agregar Bloqueo'");
+        } catch (Exception e) {
+            System.err.println("❌ Error al hacer clic en 'Agregar Bloqueo': " + e.getMessage());
+            throw e;
+        }
+    }
+
+*/
+
+    /**
+     * Método para hacer clic en el botón "Eliminación masiva de bloqueos"
+     
+    public void clickEliminacionMasiva() {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(btnEliminacionMasiva));
+            btnEliminacionMasiva.click();
+            System.out.println("✅ Se hizo clic en 'Eliminación masiva de bloqueos'");
+        } catch (Exception e) {
+            System.err.println("❌ Error al hacer clic en 'Eliminación masiva de bloqueos': " + e.getMessage());
+            throw e;
+        }
+    }
+
+*/
+
+    /**
+     * Método para hacer clic en el botón "Enviar"
+    
+    public void clickEnviar() {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(btnEnviar));
+            btnEnviar.click();
+            System.out.println("✅ Se hizo clic en 'Enviar'");
+        } catch (Exception e) {
+            System.err.println("❌ Error al hacer clic en 'Enviar': " + e.getMessage());
+            throw e;
+        }
+    }
+ */
+
+
+    /**
+     * Método para hacer clic en el botón "Nueva Solicitud"
+     
+
+
+    public void clickNuevaSolicitud() {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(btnNuevaSolicitud));
+            btnNuevaSolicitud.click();
+            System.out.println("✅ Se hizo clic en 'Nueva Solicitud'");
+        } catch (Exception e) {
+            System.err.println("❌ Error al hacer clic en 'Nueva Solicitud': " + e.getMessage());
+            throw e;
+        }
+    }
+
+    */
+
+
+
+
+
+
+
+
+
+
 }
