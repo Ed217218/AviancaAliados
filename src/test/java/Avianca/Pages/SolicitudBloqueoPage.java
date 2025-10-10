@@ -13,6 +13,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import Avianca.Steps.ButtonPages;
+import Avianca.Steps.FormatoFecha;
 import groovyjarjarantlr4.v4.parse.ANTLRParser.sync_return;
 
 public class SolicitudBloqueoPage {
@@ -20,6 +21,8 @@ public class SolicitudBloqueoPage {
     private ButtonPages buttonPages;
     private WebDriver driver;
     private WebDriverWait wait;
+    private FormatoFecha formatoFecha;
+
 
         //esto es un constructor
     public SolicitudBloqueoPage(WebDriver driver) {
@@ -31,14 +34,37 @@ public class SolicitudBloqueoPage {
     }
 
 
-    public void llegarSolicitudDeBloqueo() {
+    public void SolicitudDeBloqueo() {
         buttonPages.btnSolicitudDeBloqueo();
-        buttonPages.btnNuevaSolicitud();
+       // buttonPages.btnNuevaSolicitud();
       //  buttonPages.clickAgregarBloqueo();
        // buttonPages.clickEnviar();
       //  buttonPages.clickNuevaSolicitud(); 
       //  buttonPages.clickEliminacionMasiva();
     }
+
+    public void hacerClicNuevaSolicitud() {
+        buttonPages.btnNuevaSolicitud();
+    }
+
+    public void hacerClicAgregarBloqueo() {
+        buttonPages.clickAgregarBloqueo();
+    }
+/*
+    public void hacerClicEnviar() {
+        buttonPages.clickEnviar();
+    }
+    public void botonNuevaSolicitud() {
+        buttonPages.clickNuevaSolicitud();
+    }   
+    public void hacerClicEliminacionMasiva() {
+        buttonPages.clickEliminacionMasiva();
+    } 
+ */
+
+
+
+
 
 
 
@@ -356,6 +382,11 @@ public class SolicitudBloqueoPage {
                 By.xpath("//mat-option//span")
             ));
             
+            // Ajustar el destino para agregar un espacio después de la coma
+            String destinoAjustado = destino.replace("\"", "");
+            destinoAjustado = destinoAjustado.replace(",", ", ");
+            destino = destinoAjustado;
+
             // Seleccionar la opción deseada
             boolean encontrado = false;
             for (WebElement opcion : opciones) {
@@ -390,15 +421,31 @@ public class SolicitudBloqueoPage {
      */
     public void ingresarFechaInicial(String fechaInicial) {
         try {
+            // Limpiar comillas si vienen en el parámetro
+            String fechaLimpia = fechaInicial.replace("\"", "").trim();
+            
+            // Formatear usando FormatoFecha (método estático)
+            String fechaFormateada = FormatoFecha.formatearSiEsNecesario(fechaLimpia);
+            
+            System.out.println("📅 Fecha inicial original: " + fechaInicial);
+            System.out.println("📅 Fecha inicial formateada: " + fechaFormateada);
+            
+            // Ingresar la fecha formateada en el campo
             wait.until(ExpectedConditions.visibilityOf(txtFechaInicial));
             txtFechaInicial.clear();
-            txtFechaInicial.sendKeys(fechaInicial);
-            System.out.println("✅ Se ingresó la fecha inicial: " + fechaInicial);
+            txtFechaInicial.sendKeys(fechaFormateada);
+            
+            System.out.println("✅ Se ingresó la fecha inicial: " + fechaFormateada);
+            
+        } catch (IllegalArgumentException e) {
+            System.err.println("❌ Error al formatear fecha inicial: " + e.getMessage());
+            throw new RuntimeException("Formato de fecha inicial inválido: " + fechaInicial, e);
         } catch (Exception e) {
             System.err.println("❌ Error al ingresar fecha inicial: " + e.getMessage());
             throw new RuntimeException("Fallo al ingresar fecha inicial", e);
         }
     }
+
 
     /**
      * Método para ingresar la Fecha Final
@@ -406,10 +453,65 @@ public class SolicitudBloqueoPage {
      */
     public void ingresarFechaFinal(String fechaFinal) {
         try {
+                    // Limpiar comillas si vienen en el parámetro
+        String fechaLimpia = fechaFinal.replace("\"", "").trim();
+        
+         // Esperar a que el select sea clickeable
+        wait.until(ExpectedConditions.elementToBeClickable(txtFechaFinal));
+
+         // Hacer clic para desplegar el menú
+        txtFechaFinal.click();
+        txtFechaFinal.clear();
+            // Formatear usando FormatoFecha (método estático)
+            String fechaFormateada = FormatoFecha.formatearSiEsNecesario(fechaLimpia);
+            
+            System.out.println("📅 Fecha final original: " + fechaFinal);
+            System.out.println("📅 Fecha final formateada: " + fechaFormateada);
+            
+            // Esperar a que el campo sea visible
             wait.until(ExpectedConditions.visibilityOf(txtFechaFinal));
-            txtFechaFinal.clear();
-            txtFechaFinal.sendKeys(fechaFinal);
-            System.out.println("✅ Se ingresó la fecha final: " + fechaFinal);
+            
+            // Verificar si el campo tiene un valor previo (inicializado)
+            String valorActual = txtFechaFinal.getAttribute("value");
+            if (valorActual != null && !valorActual.trim().isEmpty()) {
+                System.out.println("⚠️ Campo inicializado con valor: " + valorActual);
+                System.out.println("🧹 Limpiando el campo...");
+                
+                // Limpiar el campo de múltiples formas para asegurar que quede vacío
+                txtFechaFinal.clear();
+                
+                // Verificar si se limpió correctamente
+                String valorDespuesLimpiar = txtFechaFinal.getAttribute("value");
+                if (valorDespuesLimpiar != null && !valorDespuesLimpiar.trim().isEmpty()) {
+                    // Si clear() no funcionó, usar JavaScript para limpiar
+                    System.out.println("🔧 Usando JavaScript para limpiar el campo...");
+                    ((org.openqa.selenium.JavascriptExecutor) driver)
+                        .executeScript("arguments[0].value = '';", txtFechaFinal);
+                    
+                    // Esperar un momento para que se actualice el DOM
+                    Thread.sleep(3000);
+                }
+                
+                System.out.println("✅ Campo limpiado correctamente");
+            } else {
+                System.out.println("ℹ️ Campo vacío, no requiere limpieza");
+            }
+            
+            // Ingresar la fecha formateada en el campo
+            txtFechaFinal.sendKeys(fechaFormateada);
+            
+            // Verificar que la fecha se ingresó correctamente
+            String valorFinal = txtFechaFinal.getAttribute("value");
+            System.out.println("✅ Se ingresó la fecha final: " + fechaFormateada);
+            System.out.println("📋 Valor actual en el campo: " + valorFinal);
+            
+        } catch (IllegalArgumentException e) {
+            System.err.println("❌ Error al formatear fecha final: " + e.getMessage());
+            throw new RuntimeException("Formato de fecha final inválido: " + fechaFinal, e);
+        } catch (InterruptedException e) {
+            System.err.println("❌ Error en la espera de tiempo: " + e.getMessage());
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Fallo en la espera al limpiar fecha final", e);
         } catch (Exception e) {
             System.err.println("❌ Error al ingresar fecha final: " + e.getMessage());
             throw new RuntimeException("Fallo al ingresar fecha final", e);
@@ -442,7 +544,7 @@ public class SolicitudBloqueoPage {
             wait.until(ExpectedConditions.visibilityOf(listFrecuenciaVuelo));
             
             // Array con los días de la semana
-            String[] dias = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+            String[] dias = {"Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"};
             
             for (String dia : dias) {
                 WebElement opcion = listFrecuenciaVuelo.findElement(
@@ -523,19 +625,27 @@ String fechaInicial, String fechaFinal, String asientos) {
     seleccionarAerolinea(aerolinea);
     ingresarNumeroVuelo(numeroVuelo);
     seleccionarOrigen(origen);
-    
-    // Ajustar el destino para agregar un espacio después de la coma
-    String destinoAjustado = destino.replace(",", ", ");
-    System.out.println("Seleccionando destino antes: " + destino);
-       destino = destinoAjustado;
-    seleccionarDestino(destino);
-    System.out.println("Seleccionando destino después: " + destino);
-    
+    seleccionarDestino(destino);    
     ingresarFechaInicial(fechaInicial);
-    ingresarFechaFinal(fechaFinal);
+    ingresarFechaFinal(fechaFinal);    
     ingresarAsientos(asientos);
 
     System.out.println("✅ Formulario de Informacion del Vuelo llenado correctamente.");
     }
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -8,7 +8,9 @@ Feature: yo como usuario valido Solicitud de bloqueos
     When El usuario navega a Nueva Solicitud
     And El usuario diligencia el formulario de solicitud de bloqueos <solicitante> <tourOperador> <negocio>
     And El usuario diligencia el formulario de informacion del vuelo <aerolinea> <numeroVuelo> <origen> <destino> <fechaInicial> <fechaFinal> <asientos>
+    And Diligenciar frcuencia de vuelo
+    And Agregar bloqueo
 
     Examples:
   | email                    | password    | solicitante | tourOperador  | negocio | aerolinea | numeroVuelo | origen    | destino       | fechaInicial | fechaFinal | asientos |
-  | patest240221@yopmail.com | TestAv2024% | Test1       | Quasarnautica | Prueba1 | AV        | 1632        | UIO,Quito | "GPS,Baltra"  | 2025-10-11   | 2025-11-11 | 1        |
+  | patest240221@yopmail.com | TestAv2024% | Test1       | Quasarnautica | Prueba1 | AV        | 1632        | UIO,Quito | "GPS,Baltra"  | 2025-11-10   | 2025-11-11 | 120      |

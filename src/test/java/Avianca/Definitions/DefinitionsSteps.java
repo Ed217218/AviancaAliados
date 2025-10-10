@@ -38,7 +38,8 @@ public class DefinitionsSteps {
     public void navegarANuevaSolicitud() {
         // Inicializar solicitudBloqueoPage después de tener el driver
         this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
-        this.solicitudBloqueoPage.llegarSolicitudDeBloqueo();
+        this.solicitudBloqueoPage.SolicitudDeBloqueo();
+        this.solicitudBloqueoPage.hacerClicNuevaSolicitud();
     }
 
     @When("^El usuario diligencia el formulario de solicitud de bloqueos (.*) (.*) (.*)$")
@@ -56,29 +57,44 @@ public class DefinitionsSteps {
         String fechaInicial,   // \d{4}-\d{2}-\d{2} formato fecha
         String fechaFinal,     // \d{4}-\d{2}-\d{2} formato fecha
         String asientos        // \d+ captura números
-) {
-    System.out.println("🔍 DEBUG - Parámetros recibidos:");
-    System.out.println("   Aerolínea: '" + aerolinea + "'");
-    System.out.println("   Número de Vuelo: '" + numeroVuelo + "'");
-    System.out.println("   Origen: '" + origen + "'");
-    System.out.println("   Destino: '" + destino + "'");
-    System.out.println("   Fecha Inicial: '" + fechaInicial + "'");
-    System.out.println("   Fecha Final: '" + fechaFinal + "'");
-    System.out.println("   Asientos: '" + asientos + "'");
+        ) 
+            {
 
-    this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
-    
-    this.solicitudBloqueoPage.llenarFormularioInformacionVuelo(
-        aerolinea,
-        numeroVuelo,
-        origen,
-        destino,
-        fechaInicial,
-        fechaFinal,
-        asientos
-    );
-}
+                    System.out.println("🔍 DEBUG - Parámetros recibidos:");
+                    System.out.println("   Aerolínea: '" + aerolinea + "'");
+                    System.out.println("   Número de Vuelo: '" + numeroVuelo + "'");
+                    System.out.println("   Origen: '" + origen + "'");
+                    System.out.println("   Destino: '" + destino + "'");
+                    System.out.println("   Fecha Inicial: '" + fechaInicial + "'");
+                    System.out.println("   Fecha Final: '" + fechaFinal + "'");
+                    System.out.println("   Asientos: '" + asientos + "'");
+
+                    this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            
+                    this.solicitudBloqueoPage.llenarFormularioInformacionVuelo(
+                    aerolinea,
+                    numeroVuelo,
+                    origen,
+                    destino,
+                    fechaInicial,
+                    fechaFinal,
+                    asientos
+                        );
+            }
 
 
 
-}
+    @When("^Diligenciar frcuencia de vuelo$")
+    public void diligenciarFrecuenciaDeVuelo() {
+        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        this.solicitudBloqueoPage.seleccionarTodosLosDias();
+        this.solicitudBloqueoPage.marcarTodos();
+    }
+
+    @And("^Agregar bloqueo$")
+    public void agregarBloqueo() {
+        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        this.solicitudBloqueoPage.hacerClicAgregarBloqueo();
+    }
+
+}    

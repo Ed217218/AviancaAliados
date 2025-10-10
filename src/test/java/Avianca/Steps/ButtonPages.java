@@ -29,17 +29,21 @@ public class ButtonPages {
     
     // ===== BOTONES DE ACCIÓN =====
 
-    @FindBy(how = How.XPATH, using = "//button[contains(text(),'Agregar Bloqueo')]")
-    private WebElement btnAgregarBloqueo;
+        // Botón "Agregar Bloqueo"
+        @FindBy(how = How.XPATH, using = "//button[.//span[normalize-space()='Agregar Bloqueo']]")
+        private WebElement btnAgregarBloqueo;
 
-    @FindBy(how = How.XPATH, using = "//button[contains(text(),'Eliminación masiva de bloqueos')]")
-    private WebElement btnEliminacionMasiva;
+        // Botón "Eliminación masiva de bloqueos"
+        @FindBy(how = How.XPATH, using = "//button[.//span[normalize-space()='Eliminacion masiva de bloqueos']]")
+        private WebElement btnEliminacionMasiva;
 
-    @FindBy(how = How.XPATH, using = "//button[contains(text(),'Enviar')]")
-    private WebElement btnEnviar;
+        // Botón "Enviar"
+        @FindBy(how = How.XPATH, using = "//button[.//span[normalize-space()='Enviar']]")
+        private WebElement btnEnviar;
 
-    @FindBy(how = How.XPATH, using = "//button[contains(text(),'Nueva Solicitud')]")
-    private WebElement btnNuevaSolicitud;
+        // Botón "Nueva Solicitud"
+        @FindBy(how = How.XPATH, using = "//button[.//span[normalize-space()='Nueva Solicitud']]")
+        private WebElement NuevaSolicitud;
 
 
 
@@ -64,6 +68,33 @@ public class ButtonPages {
             throw new RuntimeException("Fallo en login", e);
         }
     }
+
+
+    /**
+     * 🔧 MÉTODO AUXILIAR: Encuentra "Solicitudes de Bloqueo" con múltiples estrategias
+     */
+    private WebElement encontrarSolicitudDeBloqueo() {
+        By[] localizadores = {
+            By.id("horizontal-menu-item-103"),
+            By.xpath("//span[@class='horizontal-menu-title' and text()='Solicitudes de Bloqueo']"),
+            By.xpath("//span[text()='Solicitudes de Bloqueo']"),
+            By.xpath("//*[contains(text(), 'Solicitudes de Bloqueo')]")
+        };
+        return encontrarElemento(localizadores);
+    }
+
+       /**
+     * 🔧 MÉTODO AUXILIAR: Scroll a un elemento
+     */
+    private void scrollToElement(WebElement elemento) {
+        try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", elemento);
+        } catch (Exception e) {
+            System.out.println("⚠️ No se pudo hacer scroll al elemento: " + e.getMessage());
+            throw new RuntimeException("Error al hacer scroll al elemento", e);
+        }
+    }
+
 
     /**
      * 🎯 MÉTODO MEJORADO: Clic en "Solicitudes de Bloqueo" para desplegar submenú
@@ -121,6 +152,20 @@ public class ButtonPages {
     }
 
     /**
+     * 🔧 MÉTODO AUXILIAR: Encuentra "Nueva Solicitud" con múltiples estrategias
+     */
+    private WebElement encontrarNuevaSolicitud() {
+        By[] localizadores = {
+            By.id("horizontal-menu-item-102"),
+            By.xpath("//span[@class='horizontal-menu-title' and text()='Nueva Solicitud']"),
+            By.xpath("//span[text()='Nueva Solicitud']"),
+            By.xpath("//*[contains(text(), 'Nueva Solicitud')]"),
+            By.xpath("//a[@href='/OpeBlock/Index']")
+        };
+        return encontrarElemento(localizadores);
+    }
+
+    /**
      * 🎯 MÉTODO MEJORADO: Clic en "Nueva Solicitud" del submenú
      * Ahora aseguramos que el clic se realice correctamente
      */
@@ -167,43 +212,7 @@ public class ButtonPages {
         }
     }
 
-    /**
-     * 🔧 MÉTODO AUXILIAR: Scroll a un elemento
-     */
-    private void scrollToElement(WebElement elemento) {
-        try {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", elemento);
-        } catch (Exception e) {
-            System.out.println("⚠️ No se pudo hacer scroll al elemento: " + e.getMessage());
-        }
-    }
 
-    /**
-     * 🔧 MÉTODO AUXILIAR: Encuentra "Solicitudes de Bloqueo" con múltiples estrategias
-     */
-    private WebElement encontrarSolicitudDeBloqueo() {
-        By[] localizadores = {
-            By.id("horizontal-menu-item-103"),
-            By.xpath("//span[@class='horizontal-menu-title' and text()='Solicitudes de Bloqueo']"),
-            By.xpath("//span[text()='Solicitudes de Bloqueo']"),
-            By.xpath("//*[contains(text(), 'Solicitudes de Bloqueo')]")
-        };
-        return encontrarElemento(localizadores);
-    }
-
-    /**
-     * 🔧 MÉTODO AUXILIAR: Encuentra "Nueva Solicitud" con múltiples estrategias
-     */
-    private WebElement encontrarNuevaSolicitud() {
-        By[] localizadores = {
-            By.id("horizontal-menu-item-102"),
-            By.xpath("//span[@class='horizontal-menu-title' and text()='Nueva Solicitud']"),
-            By.xpath("//span[text()='Nueva Solicitud']"),
-            By.xpath("//*[contains(text(), 'Nueva Solicitud')]"),
-            By.xpath("//a[@href='/OpeBlock/Index']")
-        };
-        return encontrarElemento(localizadores);
-    }
 
     /**
      * 🔧 MÉTODO AUXILIAR GENÉRICO: Encuentra un elemento con múltiples estrategias
@@ -218,6 +227,7 @@ public class ButtonPages {
                 }
             } catch (Exception e) {
                 System.out.println("⚠️ Falló localizador: " + localizador);
+                throw new RuntimeException("Error al buscar elemento con localizador: " + localizador, e);
             }
         }
         return null;
@@ -266,6 +276,7 @@ public class ButtonPages {
             
         } catch (Exception e) {
             System.out.println("⚠️ No se pudo mantener el submenú abierto: " + e.getMessage());
+            throw new RuntimeException("Error al mantener el submenú abierto", e);
         }
     }
 
@@ -317,72 +328,197 @@ public class ButtonPages {
     }
 
     /**
-     * Método para hacer clic en el botón "Agregar Bloqueo"
-     
+     * 🔧 MÉTODO AUXILIAR: Encuentra "Agregar Bloqueo" con múltiples estrategias
+     */
+    private WebElement encontrarAgregarBloqueo() {
+        By[] localizadores = {
+            By.xpath("//button[.//span[normalize-space()='Agregar Bloqueo']]"),
+            By.xpath("//button[@type='submit' and .//span[contains(text(), 'Agregar Bloqueo')]]"),
+            By.xpath("//button[contains(@class, 'mat-accent') and .//span[contains(text(), 'Agregar Bloqueo')]]"),
+            By.xpath("//button[.//mat-icon[contains(@class, 'add')]]")
+        };
+        return encontrarElemento(localizadores);
+    }
+
+    /**
+     * 🎯 MÉTODO MEJORADO: Clic en "Agregar Bloqueo"
+     */
     public void clickAgregarBloqueo() {
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(btnAgregarBloqueo));
-            btnAgregarBloqueo.click();
-            System.out.println("✅ Se hizo clic en 'Agregar Bloqueo'");
+            System.out.println("🔍 Buscando elemento 'Agregar Bloqueo'...");
+            
+            WebElement elemento = encontrarAgregarBloqueo();
+            
+            if (elemento != null) {
+                // Hacer scroll al elemento si es necesario
+                scrollToElement(elemento);
+                
+                // Esperar que sea visible y clickeable
+                wait.until(ExpectedConditions.elementToBeClickable(elemento));
+                
+                // Intentar múltiples estrategias para hacer clic
+                if (!intentarClicNormal(elemento)) {
+                    System.out.println("⚠️ Clic normal falló, intentando con Actions...");
+                    if (!intentarClicConActions(elemento)) {
+                        System.out.println("⚠️ Clic con Actions falló, intentando con JavaScript...");
+                        if (!intentarClickConJavaScript(elemento)) {
+                            throw new RuntimeException("❌ No se pudo hacer clic en 'Agregar Bloqueo' con ningún método");
+                        }
+                    }
+                }
+                
+                System.out.println("✅ Clic realizado en 'Agregar Bloqueo'");
+            } else {
+                throw new RuntimeException("❌ No se encontró el elemento 'Agregar Bloqueo'");
+            }
         } catch (Exception e) {
-            System.err.println("❌ Error al hacer clic en 'Agregar Bloqueo': " + e.getMessage());
-            throw e;
+            System.err.println("❌ Error en clic sobre 'Agregar Bloqueo': " + e.getMessage());
+            throw new RuntimeException("Fallo al interactuar con 'Agregar Bloqueo'", e);
         }
     }
 
-*/
+
+
 
     /**
-     * Método para hacer clic en el botón "Eliminación masiva de bloqueos"
-     
+     * 🔧 MÉTODO AUXILIAR: Encuentra "Eliminación masiva de bloqueos" con múltiples estrategias
+     */
+    private WebElement encontrarEliminacionMasiva() {
+        By[] localizadores = {
+            By.xpath("//button[.//span[normalize-space()='Eliminacion masiva de bloqueos']]"),
+            By.xpath("//button[@type='button' and .//span[contains(text(), 'Eliminacion masiva de bloqueos')]]"),
+            By.xpath("//button[contains(@class, 'mat-warn') and .//span[contains(text(), 'Eliminacion masiva de bloqueos')]]"),
+            By.xpath("//button[.//mat-icon[contains(@class, 'delete')]]")
+        };
+        return encontrarElemento(localizadores);
+    }
+
+
+
+    /**
+     * 🎯 MÉTODO MEJORADO: Clic en "Eliminación masiva de bloqueos"
+     */
     public void clickEliminacionMasiva() {
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(btnEliminacionMasiva));
-            btnEliminacionMasiva.click();
-            System.out.println("✅ Se hizo clic en 'Eliminación masiva de bloqueos'");
+            System.out.println("🔍 Buscando elemento 'Eliminación masiva de bloqueos'...");
+            
+            WebElement elemento = encontrarEliminacionMasiva();
+            
+            if (elemento != null) {
+                scrollToElement(elemento);
+                wait.until(ExpectedConditions.elementToBeClickable(elemento));
+                
+                if (!intentarClicNormal(elemento)) {
+                    if (!intentarClicConActions(elemento)) {
+                        if (!intentarClickConJavaScript(elemento)) {
+                            throw new RuntimeException("❌ No se pudo hacer clic en 'Eliminación masiva de bloqueos'");
+                        }
+                    }
+                }
+                
+                System.out.println("✅ Clic realizado en 'Eliminación masiva de bloqueos'");
+            } else {
+                throw new RuntimeException("❌ No se encontró el elemento 'Eliminación masiva de bloqueos'");
+            }
         } catch (Exception e) {
-            System.err.println("❌ Error al hacer clic en 'Eliminación masiva de bloqueos': " + e.getMessage());
-            throw e;
+            System.err.println("❌ Error en clic sobre 'Eliminación masiva de bloqueos': " + e.getMessage());
+            throw new RuntimeException("Fallo al interactuar con 'Eliminación masiva de bloqueos'", e);
         }
     }
 
-*/
+
 
     /**
-     * Método para hacer clic en el botón "Enviar"
-    
+     * 🔧 MÉTODO AUXILIAR: Encuentra "Enviar" con múltiples estrategias
+     */
+    private WebElement encontrarEnviar() {
+        By[] localizadores = {
+            By.xpath("//button[.//span[normalize-space()='Enviar']]"),
+            By.xpath("//button[@type='button' and .//span[contains(text(), 'Enviar')]]"),
+            By.xpath("//button[contains(@class, 'mat-accent') and .//span[contains(text(), 'Enviar')]]")
+        };
+        return encontrarElemento(localizadores);
+    }
+
+    /**
+     * 🎯 MÉTODO MEJORADO: Clic en "Enviar"
+     */
     public void clickEnviar() {
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(btnEnviar));
-            btnEnviar.click();
-            System.out.println("✅ Se hizo clic en 'Enviar'");
+            System.out.println("🔍 Buscando elemento 'Enviar'...");
+            
+            WebElement elemento = encontrarEnviar();
+            
+            if (elemento != null) {
+                scrollToElement(elemento);
+                wait.until(ExpectedConditions.elementToBeClickable(elemento));
+                
+                if (!intentarClicNormal(elemento)) {
+                    if (!intentarClicConActions(elemento)) {
+                        if (!intentarClickConJavaScript(elemento)) {
+                            throw new RuntimeException("❌ No se pudo hacer clic en 'Enviar'");
+                        }
+                    }
+                }
+                
+                System.out.println("✅ Clic realizado en 'Enviar'");
+            } else {
+                throw new RuntimeException("❌ No se encontró el elemento 'Enviar'");
+            }
         } catch (Exception e) {
-            System.err.println("❌ Error al hacer clic en 'Enviar': " + e.getMessage());
-            throw e;
+            System.err.println("❌ Error en clic sobre 'Enviar': " + e.getMessage());
+            throw new RuntimeException("Fallo al interactuar con 'Enviar'", e);
         }
     }
- */
 
 
     /**
-     * Método para hacer clic en el botón "Nueva Solicitud"
-     
-
-
-    public void clickNuevaSolicitud() {
-        try {
-            wait.until(ExpectedConditions.elementToBeClickable(btnNuevaSolicitud));
-            btnNuevaSolicitud.click();
-            System.out.println("✅ Se hizo clic en 'Nueva Solicitud'");
-        } catch (Exception e) {
-            System.err.println("❌ Error al hacer clic en 'Nueva Solicitud': " + e.getMessage());
-            throw e;
-        }
+     * 🔧 MÉTODO AUXILIAR: Encuentra "Nueva Solicitud" con múltiples estrategias
+     */
+    private WebElement encontrarNuevaSolicitudButton() {
+        By[] localizadores = {
+            By.xpath("//button[.//span[normalize-space()='Nueva Solicitud']]"),
+            By.xpath("//button[@type='button' and .//span[contains(text(), 'Nueva Solicitud')]]"),
+            By.xpath("//button[contains(@class, 'mat-primary') and .//span[contains(text(), 'Nueva Solicitud')]]")
+        };
+        return encontrarElemento(localizadores);
     }
 
-    */
-
-
+    /**
+     * 🎯 MÉTODO MEJORADO: Clic en "Nueva Solicitud"
+     */
+    public void clickNuevaSolicitud() {
+        try {
+            System.out.println("🔍 Buscando elemento 'Nueva Solicitud'...");
+            
+            WebElement elemento = encontrarNuevaSolicitudButton();
+            
+            if (elemento != null) {
+                scrollToElement(elemento);
+                
+                // Verificar si el botón está habilitado antes de intentar hacer clic
+                if (!elemento.isEnabled()) {
+                    System.out.println("⚠️ El botón 'Nueva Solicitud' está deshabilitado, esperando a que se habilite...");
+                    wait.until(ExpectedConditions.elementToBeClickable(elemento));
+                }
+                
+                if (!intentarClicNormal(elemento)) {
+                    if (!intentarClicConActions(elemento)) {
+                        if (!intentarClickConJavaScript(elemento)) {
+                            throw new RuntimeException("❌ No se pudo hacer clic en 'Nueva Solicitud'");
+                        }
+                    }
+                }
+                
+                System.out.println("✅ Clic realizado en 'Nueva Solicitud'");
+            } else {
+                throw new RuntimeException("❌ No se encontró el elemento 'Nueva Solicitud'");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error en clic sobre 'Nueva Solicitud': " + e.getMessage());
+            throw new RuntimeException("Fallo al interactuar con 'Nueva Solicitud'", e);
+        }
+    }
 
 
 
