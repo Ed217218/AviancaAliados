@@ -355,6 +355,11 @@ public class ButtonPages {
                 
                 // Esperar que sea visible y clickeable
                 wait.until(ExpectedConditions.elementToBeClickable(elemento));
+
+                  // HACER CLIC EN EL BOTÓN DE "AGREGAR BLOQUEO"
+                elemento.click();
+                System.out.println("✅ Clic realizado en 'Agregar Bloqueo'");
+
                 
                 // Intentar múltiples estrategias para hacer clic
                 if (!intentarClicNormal(elemento)) {
@@ -368,13 +373,22 @@ public class ButtonPages {
                 }
                 
                 System.out.println("✅ Clic realizado en 'Agregar Bloqueo'");
+
+
+
             } else {
                 throw new RuntimeException("❌ No se encontró el elemento 'Agregar Bloqueo'");
             }
+
+                // Esperar un momento para que se actualice el DOM
+                System.out.println("⏱️ Esperando 5 segundos para que se procese la acción...");
+                Thread.sleep(5000);
+
         } catch (Exception e) {
             System.err.println("❌ Error en clic sobre 'Agregar Bloqueo': " + e.getMessage());
             throw new RuntimeException("Fallo al interactuar con 'Agregar Bloqueo'", e);
         }
+
     }
 
 
@@ -394,16 +408,20 @@ public class ButtonPages {
     }
 
 
-
     /**
      * 🎯 MÉTODO MEJORADO: Clic en "Eliminación masiva de bloqueos"
-     */
+        */
     public void clickEliminacionMasiva() {
         try {
             System.out.println("🔍 Buscando elemento 'Eliminación masiva de bloqueos'...");
             
             WebElement elemento = encontrarEliminacionMasiva();
-            
+                // Esperar un momento para que se actualice el DOM
+                System.out.println("⏱️ Esperando 5 segundos para que se procese la acción...");
+                Thread.sleep(5000);
+            // Esperar a que el campo sea visible
+            wait.until(ExpectedConditions.visibilityOf(elemento));
+
             if (elemento != null) {
                 scrollToElement(elemento);
                 wait.until(ExpectedConditions.elementToBeClickable(elemento));
@@ -417,15 +435,23 @@ public class ButtonPages {
                 }
                 
                 System.out.println("✅ Clic realizado en 'Eliminación masiva de bloqueos'");
+        
+
+
             } else {
                 throw new RuntimeException("❌ No se encontró el elemento 'Eliminación masiva de bloqueos'");
             }
+
+                // Esperar un momento para que se actualice el DOM
+                System.out.println("⏱️ Esperando 5 segundos para que se procese la acción...");
+                Thread.sleep(5000);
+
         } catch (Exception e) {
             System.err.println("❌ Error en clic sobre 'Eliminación masiva de bloqueos': " + e.getMessage());
             throw new RuntimeException("Fallo al interactuar con 'Eliminación masiva de bloqueos'", e);
         }
+        
     }
-
 
 
     /**
@@ -448,14 +474,40 @@ public class ButtonPages {
             System.out.println("🔍 Buscando elemento 'Enviar'...");
             
             WebElement elemento = encontrarEnviar();
+
+                // Esperar un momento para que se actualice el DOM
+                Thread.sleep(5000);
+
+                // Esperar a que el campo sea visible
+        wait.until(ExpectedConditions.visibilityOf(elemento));
             
             if (elemento != null) {
                 scrollToElement(elemento);
+ // Esperar un momento para que se actualice el DOM
+             
+                wait.until(ExpectedConditions.visibilityOf(elemento));
+
+                // Esperar un momento para que se actualice el DOM
+                Thread.sleep(5000);
+                // Verificar si el botón está habilitado antes de intentar hacer clic
+                if (!elemento.isEnabled()) {
+                    System.out.println("⚠️ El botón 'Enviar' está deshabilitado, esperando a que se habilite...");
+                }
+
                 wait.until(ExpectedConditions.elementToBeClickable(elemento));
+                System.out.println("✅ El botón 'Enviar' está habilitado y clickeable");   
+                //elemento.click();       
+                
                 
                 if (!intentarClicNormal(elemento)) {
+                    System.out.println("❌ No se pudo hacer clic en 'Enviar' con clic normal");
+                    
                     if (!intentarClicConActions(elemento)) {
+
+                        System.out.println("❌ No se pudo hacer clic en 'Enviar' con Actions");
                         if (!intentarClickConJavaScript(elemento)) {
+
+                            System.out.println("❌ No se pudo hacer clic en 'Enviar' con JavaScript");
                             throw new RuntimeException("❌ No se pudo hacer clic en 'Enviar'");
                         }
                     }
@@ -474,7 +526,7 @@ public class ButtonPages {
 
     /**
      * 🔧 MÉTODO AUXILIAR: Encuentra "Nueva Solicitud" con múltiples estrategias
-     */
+     
     private WebElement encontrarNuevaSolicitudButton() {
         By[] localizadores = {
             By.xpath("//button[.//span[normalize-space()='Nueva Solicitud']]"),
@@ -483,11 +535,11 @@ public class ButtonPages {
         };
         return encontrarElemento(localizadores);
     }
+*/
 
     /**
      * 🎯 MÉTODO MEJORADO: Clic en "Nueva Solicitud"
-     */
-    public void clickNuevaSolicitud() {
+      public void clickNuevaSolicitud() {
         try {
             System.out.println("🔍 Buscando elemento 'Nueva Solicitud'...");
             
@@ -520,6 +572,7 @@ public class ButtonPages {
         }
     }
 
+   */
 
 
 

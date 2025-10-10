@@ -36,11 +36,6 @@ public class SolicitudBloqueoPage {
 
     public void SolicitudDeBloqueo() {
         buttonPages.btnSolicitudDeBloqueo();
-       // buttonPages.btnNuevaSolicitud();
-      //  buttonPages.clickAgregarBloqueo();
-       // buttonPages.clickEnviar();
-      //  buttonPages.clickNuevaSolicitud(); 
-      //  buttonPages.clickEliminacionMasiva();
     }
 
     public void hacerClicNuevaSolicitud() {
@@ -50,16 +45,20 @@ public class SolicitudBloqueoPage {
     public void hacerClicAgregarBloqueo() {
         buttonPages.clickAgregarBloqueo();
     }
-/*
-    public void hacerClicEnviar() {
-        buttonPages.clickEnviar();
-    }
-    public void botonNuevaSolicitud() {
-        buttonPages.clickNuevaSolicitud();
-    }   
+
     public void hacerClicEliminacionMasiva() {
         buttonPages.clickEliminacionMasiva();
     } 
+
+
+    public void hacerClicEnviar() {
+        buttonPages.clickEnviar();
+    }
+/*
+    public void botonNuevaSolicitud() {
+        buttonPages.clickNuevaSolicitud();
+    }   
+
  */
 
 
@@ -149,11 +148,10 @@ public class SolicitudBloqueoPage {
             // Hacer clic para desplegar el menú
             selectTourOperador.click();
             System.out.println("✅ Menú de Tour Operador desplegado");
-            
-            // Esperar 3 segundos después de desplegar el menú
-            Thread.sleep(3000);
-            System.out.println("⏱️ Esperando 5 segundos antes de seleccionar...");
-            
+            // Esperar 2 segundos después de desplegar el menú
+            Thread.sleep(2000);
+            System.out.println("⏱️ Esperando 2 segundos antes de seleccionar...");
+
             // Esperar a que aparezcan las opciones
             List<WebElement> opciones = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
                     By.xpath("//mat-option//span")
@@ -239,11 +237,10 @@ public class SolicitudBloqueoPage {
             // Hacer clic para desplegar el menú
             selectAerolinea.click();
             System.out.println("✅ Menú de Aerolínea desplegado");
-            
-            // Esperar 5 segundos después de desplegar el menú
-            Thread.sleep(3000);
-            System.out.println("⏱️ Esperando 5 segundos antes de seleccionar...");
-            
+            // Esperar 2 segundos después de desplegar el menú
+            Thread.sleep(2000);
+            System.out.println("⏱️ Esperando 2 segundos antes de seleccionar...");
+
             // Esperar a que aparezcan las opciones
             List<WebElement> opciones = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
                 By.xpath("//mat-option//span")
@@ -324,9 +321,9 @@ public class SolicitudBloqueoPage {
             // Hacer clic para desplegar el menú
             selectOrigen.click();
             System.out.println("✅ Menú de Origen desplegado");
-            // Esperar 3 segundos después de desplegar el menú
-            Thread.sleep(3000);
-            System.out.println("⏱️ Esperando 3 segundos antes de seleccionar...");
+            // Esperar 2 segundos después de desplegar el menú
+            Thread.sleep(2000);
+            System.out.println("⏱️ Esperando 2 segundos antes de seleccionar...");
 
             // Esperar a que aparezcan las opciones
             List<WebElement> opciones = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
@@ -349,7 +346,7 @@ public class SolicitudBloqueoPage {
             }
             
             // Esperar a que el dropdown se cierre completamente
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             
         } catch (InterruptedException e) {
             System.err.println("❌ Error en la espera de tiempo: " + e.getMessage());
@@ -373,9 +370,9 @@ public class SolicitudBloqueoPage {
             // Hacer clic para desplegar el menú
             selectDestino.click();
             System.out.println("✅ Menú de Destino desplegado");
-            // Esperar 3 segundos después de desplegar el menú
-            Thread.sleep(3000);
-            System.out.println("⏱️ Esperando 3 segundos antes de seleccionar...");
+            // Esperar 2 segundos después de desplegar el menú
+            Thread.sleep(2000);
+            System.out.println("⏱️ Esperando 2 segundos antes de seleccionar...");
 
             // Esperar a que aparezcan las opciones
             List<WebElement> opciones = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
@@ -403,7 +400,7 @@ public class SolicitudBloqueoPage {
             }
             
             // Esperar a que el dropdown se cierre completamente
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             
         } catch (InterruptedException e) {
             System.err.println("❌ Error en la espera de tiempo: " + e.getMessage());
@@ -489,7 +486,7 @@ public class SolicitudBloqueoPage {
                         .executeScript("arguments[0].value = '';", txtFechaFinal);
                     
                     // Esperar un momento para que se actualice el DOM
-                    Thread.sleep(3000);
+                    Thread.sleep(1000);
                 }
                 
                 System.out.println("✅ Campo limpiado correctamente");

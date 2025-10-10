@@ -91,10 +91,30 @@ public class DefinitionsSteps {
         this.solicitudBloqueoPage.marcarTodos();
     }
 
-    @And("^Agregar bloqueo$")
+    @When("^Agregar bloqueo$")
     public void agregarBloqueo() {
         this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
         this.solicitudBloqueoPage.hacerClicAgregarBloqueo();
+    }
+
+    @When("^Eliminacion masiva de bloqueos$")
+    public void eliminacionMasivaDeBloqueos() {
+        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        this.solicitudBloqueoPage.hacerClicEliminacionMasiva();
+    }
+
+    @When("^Agregar nuevamente bloqueo$")
+    public void agregarNuevamenteBloqueo() {
+        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        this.solicitudBloqueoPage.hacerClicAgregarBloqueo();
+    }
+
+
+
+    @When("^El usuario hace clic en Enviar$")
+    public void hacerClicEnviar() {
+        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        this.solicitudBloqueoPage.hacerClicEnviar();    
     }
 
 }    
