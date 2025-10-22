@@ -65,6 +65,9 @@ public class ButtonPages {
     @FindBy(how = How.XPATH, using = "//input[@formcontrolname='fecha']")
     private WebElement dateField;
 
+
+
+
     // Selector para el contenedor del calendario
     private final By calendarContainer = By.className("mat-datepicker-content-container");
 
@@ -132,10 +135,10 @@ public class ButtonPages {
             String txtPanelText = txtPanel.getText();
 
             if (txtPanelText.equals(menu)) {
-                System.out.println("⏱️ Esperando 5 segundos para estabilización y recargar los artefactos...");    
-                Thread.sleep(5000);         
-                driver.navigate().refresh();
-                System.out.println("🔄 Página refrescada");
+                //System.out.println("⏱️ Esperando 1 segundo para estabilización y recargar los artefactos...");
+                Thread.sleep(1000);
+                //driver.navigate().refresh();
+                //System.out.println("🔄 Página refrescada");
                 System.out.println("🔍 Inicia 'Solicitudes de Bloqueo'...");
                 System.out.println("🔍 Buscando elemento 'Solicitudes de Bloqueo'...");
                 WebElement elemento = encontrarSolicitudDeBloqueo();
@@ -504,8 +507,8 @@ public class ButtonPages {
                 throw new RuntimeException("❌ No se encontró el elemento 'Agregar Bloqueo'");
             }
 
-            System.out.println("⏱️ Esperando 5 segundos para que se procese la acción...");
-            Thread.sleep(5000);
+            System.out.println("⏱️ Esperando 1 segundo para que se procese la acción...");
+            Thread.sleep(1000);
 
         } catch (Exception e) {
             System.err.println("❌ Error en clic sobre 'Agregar Bloqueo': " + e.getMessage());
@@ -533,9 +536,9 @@ public class ButtonPages {
         try {
             System.out.println("🔍 Buscando elemento 'Eliminación masiva de bloqueos'...");
             WebElement elemento = encontrarEliminacionMasiva();
-            
-            System.out.println("⏱️ Esperando 5 segundos para que se procese la acción...");
-            Thread.sleep(5000);
+
+            System.out.println("⏱️ Esperando 1 segundo para que se procese la acción...");
+            Thread.sleep(1000);
             
             wait.until(ExpectedConditions.visibilityOf(elemento));
 
@@ -610,7 +613,7 @@ private void clickEnviarConCaptura() {
             System.out.println("⏳ Esperando respuesta del servicio createListBlocks...");
             
             // Esperar a que la petición se complete
-            Thread.sleep(5000);
+            Thread.sleep(3000);
             
             // Buscar la petición del servicio createListBlocks
             System.out.println("🔍 Buscando petición createListBlocks en el tráfico capturado...");
@@ -858,10 +861,10 @@ private void esperarProcesamientoServicio() {
      * 🔧 MÉTODO AUXILIAR: Prepara el elemento para la interacción
      */
     private void prepararElementoParaInteraccion(WebElement elemento) throws InterruptedException {
-        Thread.sleep(5000);
+        Thread.sleep(1000);
         wait.until(ExpectedConditions.visibilityOf(elemento));
         elementInteractions.scrollToElement(elemento);
-        Thread.sleep(5000);
+        Thread.sleep(1000);
         
         if (!elemento.isEnabled()) {
             System.out.println("⚠️ El botón 'Enviar' está deshabilitado, esperando a que se habilite...");
@@ -893,6 +896,112 @@ private void esperarProcesamientoServicio() {
         }
     }
 
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra el elemento con el número de solicitud usando múltiples estrategias
+ */
+private WebElement encontrarNumeroSolicitud() {
+    By[] localizadores = {
+        By.xpath("//mat-card-subtitle[contains(text(), 'Solicitud de bloqueos')]"),
+        By.xpath("//mat-card-subtitle[@class='mat-mdc-card-subtitle' and contains(text(), 'Solicitud de bloqueos')]"),
+        By.cssSelector("mat-card-subtitle.mat-mdc-card-subtitle"),
+        By.xpath("//div[@class='mat-mdc-card-header-text']//mat-card-subtitle"),
+        By.xpath("//mat-card-subtitle[contains(@class, 'mat-mdc-card-subtitle')]"),
+        By.xpath("//*[contains(@class, 'mat-mdc-card-subtitle') and contains(text(), 'Solicitud de bloqueos')]")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🎯 MÉTODO MEJORADO: Valida que la solicitud fue exitosa y extrae el número de solicitud
+ * @return Número de solicitud (ej: "S80767")
+ */
+public String validarSolicitudExitosa() {
+    try {
+        System.out.println("🔍 Validando que la solicitud de bloqueo fue creada exitosamente...");
+        
+        // Esperar un momento para que el elemento aparezca
+        Thread.sleep(1000);
+        
+        // Buscar el elemento con el número de solicitud
+        WebElement elementoSolicitud = encontrarNumeroSolicitud();
+        
+        if (elementoSolicitud != null && elementoSolicitud.isDisplayed()) {
+            // Obtener el texto completo: "Solicitud de bloqueos - S80767"
+            String textoCompleto = elementoSolicitud.getText().trim();
+            System.out.println("📄 Texto encontrado: " + textoCompleto);
+            
+            // Validar que contiene "Solicitud de bloqueos"
+            if (!textoCompleto.contains("Solicitud de bloqueos")) {
+                throw new RuntimeException("❌ El texto no contiene 'Solicitud de bloqueos': " + textoCompleto);
+            }
+            
+            // Extraer el número de solicitud usando expresión regular
+            String numeroSolicitud = extraerNumeroSolicitud(textoCompleto);
+            
+            if (numeroSolicitud != null && !numeroSolicitud.isEmpty()) {
+                System.out.println("✅ Validación exitosa");
+                System.out.println("📋 ========================================");
+                System.out.println("📄 SOLICITUD CREADA EXITOSAMENTE");
+                System.out.println("🆔 Número de Solicitud: " + numeroSolicitud);
+                System.out.println("📋 ========================================");
+                
+                return numeroSolicitud;
+            } else {
+                throw new RuntimeException("❌ No se pudo extraer el número de solicitud del texto: " + textoCompleto);
+            }
+            
+        } else {
+            throw new RuntimeException("❌ No se encontró el elemento con el número de solicitud");
+        }
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al validar solicitud exitosa: " + e.getMessage());
+        throw new RuntimeException("Fallo al validar la creación de la solicitud de bloqueo", e);
+    }
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Extrae el número de solicitud del texto usando regex
+ * @param textoCompleto Texto completo que contiene el número (ej: "Solicitud de bloqueos - S80767")
+ * @return Número de solicitud (ej: "S80767")
+ */
+private String extraerNumeroSolicitud(String textoCompleto) {
+    try {
+        // Método 1: Split por guion (más simple)
+        if (textoCompleto.contains("-")) {
+            String numeroSolicitud = textoCompleto.split("-")[1].trim();
+            System.out.println("✅ Número extraído con split: " + numeroSolicitud);
+            return numeroSolicitud;
+        }
+        
+        // Método 2: Expresión regular (más robusto)
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("S\\d+");
+        java.util.regex.Matcher matcher = pattern.matcher(textoCompleto);
+        
+        if (matcher.find()) {
+            String numeroSolicitud = matcher.group();
+            System.out.println("✅ Número extraído con regex: " + numeroSolicitud);
+            return numeroSolicitud;
+        }
+        
+        System.err.println("⚠️ No se pudo extraer el número de solicitud");
+        return "";
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al extraer número de solicitud: " + e.getMessage());
+        return "";
+    }
+}
+
+/**
+ * 🎯 MÉTODO PÚBLICO: Obtiene el número de solicitud después de enviar
+ * Este método puede ser llamado desde DefinitionsSteps
+ * @return Número de solicitud
+ */
+public String obtenerNumeroSolicitud() {
+    return validarSolicitudExitosa();
+}
 
 
 

@@ -1,6 +1,5 @@
 package Avianca.Definitions;
 
-import io.cucumber.java.After;
 import io.cucumber.java.en.When;
 import org.openqa.selenium.WebDriver;
 import Avianca.Pages.LoginPage;
@@ -39,6 +38,8 @@ public class DefinitionsSteps {
         }
     }
     
+    // ⚠️ COMENTADO: Ahora Hooks.java se encarga de cerrar el navegador automáticamente
+    /*
     @After
     public void cerrarRecursos() {
         try {
@@ -49,6 +50,7 @@ public class DefinitionsSteps {
             System.err.println("⚠️ Error al cerrar recursos: " + e.getMessage());
         }
     }
+    */
 
     @When("^el usuario diligenica usuario (.*) diligencia password (.*)$")
     public void llenarLogin(String email, String password) {
@@ -185,5 +187,31 @@ public class DefinitionsSteps {
         }
         this.solicitudBloqueoPage.hacerClicEnviar();    
     }
+
+    @When("^El usuario valida que la solicitud de bloqueo fue creada exitosamente$")
+    public void validarSolicitudBloqueoExitosa() {
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
+        this.solicitudBloqueoPage.validarSolicitudExitosa();
+    }
+
+    @When("^Cerrar el navegador$")
+    public void cerrarElNavegador() {
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
+        this.solicitudBloqueoPage.cerrarNavegador();
+    }
+
+
 
 }    

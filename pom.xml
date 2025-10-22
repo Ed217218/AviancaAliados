@@ -132,6 +132,9 @@
             <artifactId>guava</artifactId>
             <version>31.1-jre</version>
         </dependency>
+        
+        <!-- 🚫 PicoContainer NO es necesario - Serenity BDD ya tiene su propio ObjectFactory -->
+        <!-- Agregar PicoContainer causa conflicto: "More than one Cucumber ObjectFactory" -->
     </dependencies>
     
     <build>

@@ -82,6 +82,12 @@ public class SolicitudBloqueoPage {
         buttonPages.clickEnviar();
     }
 
+    public void validarSolicitudExitosa() { 
+        buttonPages.validarSolicitudExitosa();
+    }
+
+
+
     // ===== INFORMACIÓN DEL SOLICITANTE =====    
 
     @FindBy(how = How.ID, using = "mat-input-0")
@@ -653,5 +659,33 @@ public class SolicitudBloqueoPage {
         ingresarAsientos(asientos);
 
         System.out.println("✅ Formulario de Informacion del Vuelo llenado correctamente.");
+   }
+
+
+/**
+ * 🚪 Cierra el navegador
+ */
+public void cerrarNavegador() {
+    try {
+        if (driver != null) {
+            System.out.println("🚪 Cerrando navegador...");
+            driver.quit();
+            System.out.println("✅ Navegador cerrado exitosamente");
+        } else {
+            System.out.println("⚠️ El driver ya estaba cerrado o no se inicializó");
+        }
+    } catch (Exception e) {
+        System.err.println("❌ Error al cerrar el navegador: " + e.getMessage());
     }
 }
+
+
+
+
+
+
+
+}
+
+
+
