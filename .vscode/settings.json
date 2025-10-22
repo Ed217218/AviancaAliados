@@ -24,5 +24,25 @@
     "java.debug.settings.onBuildFailureProceed": true,
     "geminicodeassist.agentYoloMode": true,
     "github.copilot.nextEditSuggestions.enabled": true,
-    "java.configuration.updateBuildConfiguration": "disabled"
+    "java.configuration.updateBuildConfiguration": "disabled",
+    
+    // ========== CONFIGURACIÓN DE GIT ==========
+    "git.enabled": true,
+    "git.path": "C:\\Program Files\\Git\\bin\\git.exe",
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.enableSmartCommit": true,
+    "git.suggestSmartCommit": true,
+    "git.autoStash": true,
+    "git.showPushSuccessNotification": true,
+    
+    // Terminal Git integrada
+    "terminal.integrated.env.windows": {
+        "Path": "${env:Path};C:\\Program Files\\Git\\bin"
+    },
+    
+    // GitLens
+    "gitlens.currentLine.enabled": true,
+    "gitlens.hovers.currentLine.over": "line",
+    "gitlens.codeLens.enabled": true
 }

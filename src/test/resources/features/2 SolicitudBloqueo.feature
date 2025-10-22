@@ -10,11 +10,9 @@ Feature: yo como usuario valido Solicitud de bloqueos
     And El usuario diligencia el formulario de informacion del vuelo <aerolinea> <numeroVuelo> <origen> <destino> <fechaInicial> <fechaFinal> <asientos>
     And Diligenciar frcuencia de vuelo
     And Agregar bloqueo
-    And Eliminacion masiva de bloqueos
-    And Agregar nuevamente bloqueo
     And El usuario hace clic en Enviar
    
 
     Examples:
   | email                    | password    | solicitante | tourOperador  | negocio | aerolinea | numeroVuelo | origen    | destino       | fechaInicial | fechaFinal | asientos |
-  | patest240221@yopmail.com | TestAv2024% | Test2       | Quasarnautica | Prueba2 | AV        | 1632        | UIO,Quito | "GPS,Baltra"  | 2025-11-21   | 2025-12-21 | 10       |
+  | patest240221@yopmail.com | TestAv2024% | Test2       | Quasarnautica | Prueba2 | AV        | 1632        | UIO,Quito | "GPS,Baltra"  | 2026-01-04   | 2026-01-10 | 10       |

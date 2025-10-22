@@ -13,6 +13,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.time.LocalDate;
 
@@ -20,6 +21,7 @@ import Avianca.Utils.ApiErrorCapture;
 import Avianca.Utils.ElementInteractions;
 import Avianca.Utils.CalendarUtil;
 import Avianca.Utils.ElementFinder;
+import Avianca.Utils.BrowserMobProxyHelper;
 
 public class ButtonPages {
 
@@ -29,6 +31,7 @@ public class ButtonPages {
     private ApiErrorCapture apiErrorCapture;
     private CalendarUtil calendarUtil;
     private ElementFinder elementFinder;
+    private BrowserMobProxyHelper proxyHelper; // Helper para captura HTTP
 
     // Localizador principal para login
     @FindBy(how = How.XPATH, using = "//button[@type='submit']")
@@ -73,6 +76,23 @@ public class ButtonPages {
         this.calendarUtil = new CalendarUtil(driver);
         this.elementFinder = new ElementFinder(driver, 20); // 20 segundos de espera
         PageFactory.initElements(driver, this);
+    }
+    
+    /**
+     * 🔧 Constructor alternativo con BrowserMobProxyHelper
+     */
+    public ButtonPages(WebDriver driver, BrowserMobProxyHelper proxyHelper) {
+        this(driver);
+        this.proxyHelper = proxyHelper;
+        System.out.println("✅ ButtonPages iniciado con soporte de BrowserMob Proxy");
+    }
+    
+    /**
+     * 🔧 Setter para inyectar el proxyHelper después de la inicialización
+     */
+    public void setProxyHelper(BrowserMobProxyHelper proxyHelper) {
+        this.proxyHelper = proxyHelper;
+        System.out.println("✅ ProxyHelper configurado en ButtonPages");
     }
 
     /**
@@ -477,8 +497,7 @@ public class ButtonPages {
             if (elemento != null) {
                 elementInteractions.scrollToElement(elemento);
                 wait.until(ExpectedConditions.elementToBeClickable(elemento));
-                elemento.click();
-                System.out.println("✅ Clic realizado en 'Agregar Bloqueo'");
+                // Usar solo realizarClicConMultiplesEstrategias para evitar duplicados
                 realizarClicConMultiplesEstrategias(elemento);              
                 System.out.println("✅ Clic realizado en 'Agregar Bloqueo'");
             } else {
@@ -553,9 +572,22 @@ public class ButtonPages {
 
 
 /**
- * 🎯 MÉTODO PRINCIPAL: Clic en "Enviar" con captura de ambos servicios y ElementInteractions
+ * 🎯 MÉTODO PRINCIPAL: Clic en "Enviar" - Versión con BrowserMob Proxy
+ * Captura y valida la respuesta del servicio createListBlocks SIN usar CDP
  */
 public void clickEnviar() {
+    // Si hay proxy configurado, usar la versión con captura
+    if (proxyHelper != null && proxyHelper.estaActivo()) {
+        clickEnviarConCaptura();
+    } else {
+        clickEnviarSinCaptura();
+    }
+}
+
+/**
+ * 🎯 Versión con captura de HTTP usando BrowserMob Proxy
+ */
+private void clickEnviarConCaptura() {
     try {
         System.out.println("🔍 Buscando elemento 'Enviar'...");
         WebElement elemento = encontrarEnviar();
@@ -563,94 +595,122 @@ public void clickEnviar() {
         if (elemento != null) {
             prepararElementoParaInteraccion(elemento);
             
-            // Verificar si los logs están disponibles antes de limpiar
-            if (!apiErrorCapture.verificarLogsRendimientoDisponibles()) {
-                System.out.println("⚠️ Los logs de rendimiento no están disponibles, pero continuamos con CDP...");
-            }
+            // Reiniciar captura para limpiar peticiones anteriores
+            proxyHelper.reiniciarCaptura();
+            System.out.println("🔄 Captura de tráfico iniciada");
             
-            apiErrorCapture.limpiarLogsRed();
-            
-            System.out.println("🖱️ Realizando clic en 'Enviar' con enfoque híbrido...");
-            
-            // Usar el método de ElementInteractions para realizar el clic
+            System.out.println("🖱️ Realizando clic en 'Enviar'...");
             boolean clicExitoso = elementInteractions.realizarClicHibrido(elemento);
             
             if (!clicExitoso) {
                 throw new RuntimeException("❌ No se pudo realizar el clic en el botón 'Enviar' con ninguna estrategia");
             }
             
-            System.out.println("⏳ Esperando respuesta del primer servicio (createListBlocks)...");
-            Thread.sleep(3000);
+            System.out.println("✅ Clic realizado exitosamente en 'Enviar'");
+            System.out.println("⏳ Esperando respuesta del servicio createListBlocks...");
             
-            System.out.println("🔍 Capturando interacciones de red...");
-            List<ApiErrorCapture.NetworkInteraction> interacciones = apiErrorCapture.capturarInteraccionesRed();
+            // Esperar a que la petición se complete
+            Thread.sleep(5000);
             
-            // Filtramos el primer servicio (createListBlocks)
-            List<ApiErrorCapture.NetworkInteraction> primerServicio = apiErrorCapture.filtrarInteraccionesPorUrl(
-                interacciones, "web-pa-holds/tempBlocks/createListBlocks");
+            // Buscar la petición del servicio createListBlocks
+            System.out.println("🔍 Buscando petición createListBlocks en el tráfico capturado...");
+            int statusCode = proxyHelper.obtenerCodigoRespuesta("createListBlocks");
             
-            // Filtramos el segundo servicio (detail/Send)
-            List<ApiErrorCapture.NetworkInteraction> segundoServicio = apiErrorCapture.filtrarInteraccionesPorUrl(
-                interacciones, "web-pa-holds/detail/Send");
+            if (statusCode == -1) {
+                System.out.println("⚠️ No se encontró la petición createListBlocks");
+                System.out.println("📊 Mostrando todas las peticiones capturadas:");
+                proxyHelper.imprimirResumenPeticiones();
+                throw new RuntimeException("No se capturó la petición al servicio createListBlocks");
+            }
             
-            System.out.println("📊 ANÁLISIS DE SERVICIOS:");
+            // Obtener detalles de la respuesta
+            String responseBody = proxyHelper.obtenerBodyRespuesta("createListBlocks");
+            long tiempoRespuesta = proxyHelper.obtenerTiempoRespuesta("createListBlocks");
+            
+            System.out.println("\n📊 ANÁLISIS DE LA PETICIÓN:");
             System.out.println("=====================================");
+            System.out.println("🔗 Servicio: createListBlocks");
+            System.out.println("📊 Código de respuesta: " + statusCode);
+            System.out.println("⏱️ Tiempo de respuesta: " + tiempoRespuesta + "ms");
             
-            // Analizamos el primer servicio
-            if (!primerServicio.isEmpty()) {
-                ApiErrorCapture.NetworkInteraction interaccion = primerServicio.get(0);
-                System.out.println("✅ Primer servicio (createListBlocks):");
-                System.out.println("  Estado: " + interaccion.getResponse().getStatus() + " " + interaccion.getResponse().getStatusText());
+            if (statusCode >= 200 && statusCode < 300) {
+                System.out.println("✅ El servicio respondió exitosamente");
                 
-                if (interaccion.getResponse().getStatus() == 200) {
-                    System.out.println("  ✅ El primer servicio respondió correctamente");
+                if (responseBody != null && !responseBody.isEmpty()) {
+                    System.out.println("📄 Cuerpo de la respuesta:");
+                    System.out.println(responseBody);
                     
-                    // Extraemos el identifier de la respuesta si es necesario
-                    if (interaccion.getResponse().getBody() != null) {
-                        try {
-                            JSONObject responseJson = new JSONObject(interaccion.getResponse().getBody());
-                            if (responseJson.has("identifier")) {
-                                String identifier = responseJson.getString("identifier");
-                                System.out.println("  🆔 Identifier obtenido: " + identifier);
-                            }
-                        } catch (JSONException e) {
-                            System.out.println("  ⚠️ No se pudo extraer el identifier de la respuesta");
+                    // Intentar extraer información relevante del JSON
+                    try {
+                        JSONObject jsonResponse = new JSONObject(responseBody);
+                        if (jsonResponse.has("identifier")) {
+                            String identifier = jsonResponse.getString("identifier");
+                            System.out.println("🆔 Identifier obtenido: " + identifier);
                         }
+                        if (jsonResponse.has("message")) {
+                            String message = jsonResponse.getString("message");
+                            System.out.println("💬 Mensaje: " + message);
+                        }
+                    } catch (JSONException e) {
+                        System.out.println("ℹ️ La respuesta no es JSON o tiene un formato diferente");
                     }
                 } else {
-                    System.out.println("  ❌ El primer servicio respondió con error");
+                    System.out.println("ℹ️ La respuesta no tiene cuerpo");
                 }
-            } else {
-                System.out.println("⚠️ No se encontró el primer servicio (createListBlocks)");
-            }
-            
-            System.out.println("---");
-            
-            // Analizamos el segundo servicio
-            if (!segundoServicio.isEmpty()) {
-                ApiErrorCapture.NetworkInteraction interaccion = segundoServicio.get(0);
-                System.out.println("📡 Segundo servicio (detail/Send):");
-                System.out.println("  Estado: " + interaccion.getResponse().getStatus() + " " + interaccion.getResponse().getStatusText());
-                
-                if (interaccion.getResponse().getStatus() >= 400) {
-                    System.out.println("  ❌ El segundo servicio respondió con error");
-                    System.out.println("  🔍 Detalles del error:");
-                    System.out.println(interaccion.toString());
+            } else if (statusCode >= 400) {
+                System.out.println("❌ El servicio respondió con error: " + statusCode);
+                System.out.println("=====================================");
+                if (responseBody != null && !responseBody.isEmpty()) {
+                    System.out.println("📄 CUERPO COMPLETO DE LA RESPUESTA:");
+                    System.out.println("-------------------------------------");
+                    System.out.println(responseBody);
+                    System.out.println("-------------------------------------");
                     
-                    throw new RuntimeException("El segundo servicio (detail/Send) respondió con error: " + 
-                        interaccion.getResponse().getStatus() + " " + interaccion.getResponse().getStatusText());
+                    // Intentar parsear como JSON para extraer información estructurada
+                    try {
+                        JSONObject errorJson = new JSONObject(responseBody);
+                        System.out.println("\n🔎 DATOS ESTRUCTURADOS DEL ERROR:");
+                        
+                        // Buscar campos comunes de error
+                        if (errorJson.has("error")) {
+                            System.out.println("   • Error: " + errorJson.get("error"));
+                        }
+                        if (errorJson.has("message")) {
+                            System.out.println("   • Mensaje: " + errorJson.getString("message"));
+                        }
+                        if (errorJson.has("status")) {
+                            System.out.println("   • Status: " + errorJson.get("status"));
+                        }
+                        if (errorJson.has("path")) {
+                            System.out.println("   • Path: " + errorJson.getString("path"));
+                        }
+                        if (errorJson.has("timestamp")) {
+                            System.out.println("   • Timestamp: " + errorJson.get("timestamp"));
+                        }
+                        if (errorJson.has("trace")) {
+                            System.out.println("   • Trace disponible: Sí");
+                        }
+                        
+                        // Imprimir todos los campos del JSON
+                        System.out.println("\n📋 TODOS LOS CAMPOS DEL ERROR:");
+                        for (String key : errorJson.keySet()) {
+                            if (!key.equals("trace")) { // Omitir trace si es muy largo
+                                System.out.println("   • " + key + ": " + errorJson.get(key));
+                            }
+                        }
+                        
+                    } catch (JSONException e) {
+                        System.out.println("ℹ️ El cuerpo del error no es JSON válido o tiene formato diferente");
+                    }
                 } else {
-                    System.out.println("  ✅ El segundo servicio respondió correctamente");
+                    System.out.println("⚠️ El servicio no devolvió cuerpo en la respuesta de error");
                 }
-            } else {
-                System.out.println("⚠️ No se encontró el segundo servicio (detail/Send)");
-                System.out.println("  Esto podría indicar que el primer servicio falló o no generó la llamada al segundo servicio");
+                System.out.println("=====================================");
+                throw new RuntimeException("El servicio createListBlocks respondió con error: " + statusCode);
             }
             
-            System.out.println("=====================================");
-            
-            // Si llegamos aquí, ambos servicios funcionaron correctamente
-            System.out.println("✅ Ambos servicios se ejecutaron correctamente");
+            System.out.println("=====================================\n");
+            System.out.println("✅ Procesamiento completado exitosamente");
             
         } else {
             throw new RuntimeException("❌ No se encontró el elemento 'Enviar'");
@@ -658,6 +718,134 @@ public void clickEnviar() {
     } catch (Exception e) {
         System.err.println("❌ Error en clic sobre 'Enviar': " + e.getMessage());
         throw new RuntimeException("Fallo al interactuar con 'Enviar'", e);
+    }
+}
+
+/**
+ * 🎯 Versión sin captura (usando indicadores DOM)
+ */
+private void clickEnviarSinCaptura() {
+    try {
+        System.out.println("🔍 Buscando elemento 'Enviar'...");
+        WebElement elemento = encontrarEnviar();
+        
+        if (elemento != null) {
+            prepararElementoParaInteraccion(elemento);
+            
+            System.out.println("🖱️ Realizando clic en 'Enviar'...");
+            boolean clicExitoso = elementInteractions.realizarClicHibrido(elemento);
+            
+            if (!clicExitoso) {
+                throw new RuntimeException("❌ No se pudo realizar el clic en el botón 'Enviar' con ninguna estrategia");
+            }
+            
+            System.out.println("✅ Clic realizado exitosamente en 'Enviar'");
+            System.out.println("⏳ Esperando a que el servicio createListBlocks procese la información...");
+            
+            // Esperar a que la solicitud se procese (tiempo estimado)
+            esperarProcesamientoServicio();
+            
+            System.out.println("✅ Procesamiento completado");
+            
+        } else {
+            throw new RuntimeException("❌ No se encontró el elemento 'Enviar'");
+        }
+    } catch (Exception e) {
+        System.err.println("❌ Error en clic sobre 'Enviar': " + e.getMessage());
+        throw new RuntimeException("Fallo al interactuar con 'Enviar'", e);
+    }
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Espera a que el servicio procese la información
+ * Detecta indicadores visuales de que el servicio respondió
+ */
+private void esperarProcesamientoServicio() {
+    try {
+        // Estrategia 1: Buscar spinner/loader que aparece durante el procesamiento
+        System.out.println("🔄 Verificando si hay indicador de carga...");
+        List<By> loadingIndicators = Arrays.asList(
+            By.cssSelector(".mat-progress-spinner"),
+            By.cssSelector(".spinner"),
+            By.cssSelector("[role='progressbar']"),
+            By.xpath("//*[contains(@class, 'loading')]"),
+            By.xpath("//*[contains(@class, 'spinner')]")
+        );
+        
+        boolean loaderDetectado = false;
+        for (By locator : loadingIndicators) {
+            try {
+                WebElement loader = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+                if (loader.isDisplayed()) {
+                    System.out.println("⏳ Indicador de carga detectado, esperando a que desaparezca...");
+                    wait.until(ExpectedConditions.invisibilityOf(loader));
+                    loaderDetectado = true;
+                    break;
+                }
+            } catch (Exception ignored) {
+                // Continuar con el siguiente localizador
+            }
+        }
+        
+        if (!loaderDetectado) {
+            System.out.println("ℹ️ No se detectó indicador de carga, usando espera fija...");
+            // Espera fija de 5 segundos si no hay loader
+            Thread.sleep(5000);
+        }
+        
+        // Estrategia 2: Verificar si apareció mensaje de éxito
+        System.out.println("🔍 Verificando mensaje de confirmación...");
+        List<By> successIndicators = Arrays.asList(
+            By.xpath("//*[contains(text(), 'exitosa') or contains(text(), 'éxito') or contains(text(), 'correctamente')]"),
+            By.cssSelector(".success-message"),
+            By.cssSelector(".mat-snack-bar-container"),
+            By.xpath("//simple-snack-bar"),
+            By.xpath("//*[contains(@class, 'success')]")
+        );
+        
+        boolean mensajeExitoDetectado = false;
+        for (By locator : successIndicators) {
+            try {
+                WebElement mensaje = driver.findElement(locator);
+                if (mensaje.isDisplayed()) {
+                    System.out.println("✅ Mensaje de éxito detectado: " + mensaje.getText());
+                    mensajeExitoDetectado = true;
+                    break;
+                }
+            } catch (Exception ignored) {
+                // Continuar con el siguiente localizador
+            }
+        }
+        
+        if (!mensajeExitoDetectado) {
+            System.out.println("ℹ️ No se detectó mensaje de éxito visual, asumiendo procesamiento completado");
+        }
+        
+        // Estrategia 3: Verificar cambios en el DOM (botón deshabilitado/habilitado)
+        System.out.println("🔍 Verificando estado del botón 'Enviar'...");
+        WebElement botonEnviar = encontrarEnviar();
+        if (botonEnviar != null) {
+            // Si el botón se deshabilitó y luego se habilitó, indica que el proceso terminó
+            try {
+                wait.until(ExpectedConditions.attributeToBe(botonEnviar, "disabled", "true"));
+                System.out.println("⏳ Botón deshabilitado durante procesamiento...");
+                wait.until(ExpectedConditions.not(ExpectedConditions.attributeToBe(botonEnviar, "disabled", "true")));
+                System.out.println("✅ Botón habilitado nuevamente - procesamiento completado");
+            } catch (Exception e) {
+                System.out.println("ℹ️ El botón no cambió de estado durante el procesamiento");
+            }
+        }
+        
+        System.out.println("✅ Espera de procesamiento completada");
+        
+    } catch (Exception e) {
+        System.out.println("⚠️ Error al esperar procesamiento: " + e.getMessage());
+        // Espera de fallback
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
 

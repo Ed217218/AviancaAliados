@@ -16,6 +16,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import Avianca.Steps.ButtonPages;
+import Avianca.Utils.BrowserMobProxyHelper;
 import Avianca.Utils.FormatoFecha;
 //import Avianca.Utils.ElementFinder;
 //import Avianca.Utils.ElementInteractions;
@@ -35,6 +36,28 @@ public class SolicitudBloqueoPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
       //  this.elementFinder = new ElementFinder(driver, 20);
         PageFactory.initElements(driver, this);
+    }
+    
+    /**
+     * Constructor que acepta un BrowserMobProxyHelper para captura de tráfico HTTP
+     * @param driver WebDriver de Selenium
+     * @param proxyHelper Helper del proxy para captura de peticiones HTTP
+     */
+    public SolicitudBloqueoPage(WebDriver driver, BrowserMobProxyHelper proxyHelper) {
+        this.driver = driver;
+        this.buttonPages = new ButtonPages(driver, proxyHelper);
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        PageFactory.initElements(driver, this);
+    }
+    
+    /**
+     * Inyecta el proxy helper después de la construcción
+     * @param proxyHelper Helper del proxy para captura de peticiones HTTP
+     */
+    public void setProxyHelper(BrowserMobProxyHelper proxyHelper) {
+        if (this.buttonPages != null) {
+            this.buttonPages.setProxyHelper(proxyHelper);
+        }
     }
 
     // ===== MÉTODOS EXISTENTES =====

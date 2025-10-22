@@ -1,6 +1,7 @@
 package Avianca.Utils;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -17,7 +18,25 @@ public class WebDriverConfig {
     private static final String BROWSER = System.getProperty("browser", "chrome");
     private static final boolean HEADLESS = Boolean.parseBoolean(System.getProperty("headless", "false"));
     private static final boolean ENABLE_LOGS = Boolean.parseBoolean(System.getProperty("enableLogs", "true"));
+    private static Proxy seleniumProxy = null;
 
+    /**
+     * Configura el proxy de Selenium para BrowserMob
+     * @param proxy Configuración del proxy de Selenium
+     */
+    public static void setSeleniumProxy(Proxy proxy) {
+        seleniumProxy = proxy;
+        System.out.println("🔧 Proxy configurado en WebDriverConfig");
+    }
+    
+    /**
+     * Limpia la configuración del proxy
+     */
+    public static void clearProxy() {
+        seleniumProxy = null;
+        System.out.println("🧹 Proxy limpiado de WebDriverConfig");
+    }
+    
     public static WebDriver getDriver() {
         switch (BROWSER.toLowerCase()) {
             case "chrome":
@@ -46,6 +65,13 @@ public class WebDriverConfig {
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--remote-allow-origins=*");
         
+        // Configurar proxy si está disponible
+        if (seleniumProxy != null) {
+            options.setProxy(seleniumProxy);
+            options.setAcceptInsecureCerts(true);
+            System.out.println("🌐 ChromeDriver configurado con BrowserMob Proxy");
+        }
+        
         // Logs de rendimiento - solo si está habilitado y no causa conflictos
         if (ENABLE_LOGS) {
             try {
@@ -69,6 +95,13 @@ public class WebDriverConfig {
             options.addArguments("-headless");
         }
         
+        // Configurar proxy si está disponible
+        if (seleniumProxy != null) {
+            options.setProxy(seleniumProxy);
+            options.setAcceptInsecureCerts(true);
+            System.out.println("🌐 FirefoxDriver configurado con BrowserMob Proxy");
+        }
+        
         if (ENABLE_LOGS) {
             LoggingPreferences logPrefs = new LoggingPreferences();
             logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
@@ -85,6 +118,13 @@ public class WebDriverConfig {
         
         if (HEADLESS) {
             options.addArguments("--headless=new");
+        }
+        
+        // Configurar proxy si está disponible
+        if (seleniumProxy != null) {
+            options.setProxy(seleniumProxy);
+            options.setAcceptInsecureCerts(true);
+            System.out.println("🌐 EdgeDriver configurado con BrowserMob Proxy");
         }
         
         if (ENABLE_LOGS) {

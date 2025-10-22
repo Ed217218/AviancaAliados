@@ -1,10 +1,12 @@
 package Avianca.Definitions;
 
+import io.cucumber.java.After;
 import io.cucumber.java.en.When;
 import org.openqa.selenium.WebDriver;
 import Avianca.Pages.LoginPage;
 import Avianca.Pages.SolicitudBloqueoPage;
 import Avianca.Steps.Conexion;
+import Avianca.Utils.BrowserMobProxyHelper;
 //import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 
@@ -14,16 +16,37 @@ public class DefinitionsSteps {
     private Conexion conexion;
     private LoginPage loginPage;
     private SolicitudBloqueoPage solicitudBloqueoPage;
+    private BrowserMobProxyHelper proxyHelper;
 
     @Given("^abrir el navegador$")
     public void abrir_navegador() {
         try {
             this.conexion = new Conexion();
             this.driver = this.conexion.abrirNavegador();
-            System.out.println("Navegador abierto correctamente");
+            
+            // Obtener el proxy helper si está habilitado
+            this.proxyHelper = this.conexion.getProxyHelper();
+            
+            if (this.proxyHelper != null) {
+                System.out.println("✅ Navegador abierto con BrowserMob Proxy habilitado");
+            } else {
+                System.out.println("✅ Navegador abierto sin proxy");
+            }
+            
         } catch (Exception e) {
             System.err.println("Error al abrir navegador: " + e.getMessage());
             throw new RuntimeException("Fallo al inicializar el navegador", e);
+        }
+    }
+    
+    @After
+    public void cerrarRecursos() {
+        try {
+            if (this.conexion != null) {
+                this.conexion.cerrarNavegador();
+            }
+        } catch (Exception e) {
+            System.err.println("⚠️ Error al cerrar recursos: " + e.getMessage());
         }
     }
 
@@ -36,15 +59,25 @@ public class DefinitionsSteps {
     
     @When("^El usuario navega a Nueva Solicitud$")
     public void navegarANuevaSolicitud() {
-        // Inicializar solicitudBloqueoPage después de tener el driver
-        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        // Inicializar solicitudBloqueoPage con proxy si está disponible
+        if (this.proxyHelper != null) {
+            this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+        } else {
+            this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        }
         this.solicitudBloqueoPage.SolicitudDeBloqueo();
         this.solicitudBloqueoPage.hacerClicNuevaSolicitud();
     }
 
     @When("^El usuario diligencia el formulario de solicitud de bloqueos (.*) (.*) (.*)$")
     public void diligenciarFormularioSolicitudBloqueo(String solicitante, String tourOperador, String negocio) {
-        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
         this.solicitudBloqueoPage.llenarFormularioInformacionSolicitante(solicitante, tourOperador, negocio);
     }
 
@@ -69,7 +102,13 @@ public class DefinitionsSteps {
                     System.out.println("   Fecha Final: '" + fechaFinal + "'");
                     System.out.println("   Asientos: '" + asientos + "'");
 
-                    this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+                    if (this.solicitudBloqueoPage == null) {
+                        if (this.proxyHelper != null) {
+                            this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+                        } else {
+                            this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+                        }
+                    }
             
                     this.solicitudBloqueoPage.llenarFormularioInformacionVuelo(
                     aerolinea,
@@ -86,26 +125,50 @@ public class DefinitionsSteps {
 
     @When("^Diligenciar frcuencia de vuelo$")
     public void diligenciarFrecuenciaDeVuelo() {
-        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
         this.solicitudBloqueoPage.seleccionarTodosLosDias();
         this.solicitudBloqueoPage.marcarTodos();
     }
 
     @When("^Agregar bloqueo$")
     public void agregarBloqueo() {
-        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
         this.solicitudBloqueoPage.hacerClicAgregarBloqueo();
     }
 
     @When("^Eliminacion masiva de bloqueos$")
     public void eliminacionMasivaDeBloqueos() {
-        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
         this.solicitudBloqueoPage.hacerClicEliminacionMasiva();
     }
 
     @When("^Agregar nuevamente bloqueo$")
     public void agregarNuevamenteBloqueo() {
-        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
         this.solicitudBloqueoPage.hacerClicAgregarBloqueo();
     }
 
@@ -113,7 +176,13 @@ public class DefinitionsSteps {
 
     @When("^El usuario hace clic en Enviar$")
     public void hacerClicEnviar() {
-        this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
         this.solicitudBloqueoPage.hacerClicEnviar();    
     }
 
