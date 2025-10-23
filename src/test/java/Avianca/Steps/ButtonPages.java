@@ -1003,6 +1003,115 @@ public String obtenerNumeroSolicitud() {
     return validarSolicitudExitosa();
 }
 
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra el botón de menú de usuario (account_circle) con múltiples estrategias
+ */
+private WebElement encontrarBotonMenuUsuario() {
+    By[] localizadores = {
+        By.xpath("//button[.//mat-icon[normalize-space()='account_circle']]"),
+        By.xpath("//app-user-menu//button[@mat-icon-button]"),
+        By.xpath("//button[@aria-haspopup='menu' and .//mat-icon[text()='account_circle']]"),
+        By.xpath("//button[contains(@class, 'mat-mdc-menu-trigger') and .//mat-icon[text()='account_circle']]"),
+        By.xpath("//button[@mat-icon-button and contains(@class, 'mat-mdc-icon-button') and .//mat-icon[text()='account_circle']]"),
+        By.cssSelector("app-user-menu button[mat-icon-button] mat-icon[data-mat-icon-type='font']"),
+        By.xpath("//app-user-menu//button[contains(@class, 'mat-mdc-menu-trigger')]//mat-icon[text()='account_circle']/ancestor::button")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra la opción "Log out" en el menú desplegable con múltiples estrategias
+ */
+private WebElement encontrarLogOut() {
+    By[] localizadores = {
+        By.xpath("//a[@mat-menu-item and .//mat-icon[text()='power_settings_new']]"),
+        By.xpath("//a[@mat-menu-item and .//span[text()='Log out']]"),
+        By.xpath("//a[contains(@class, 'mat-mdc-menu-item') and .//span[text()='Log out']]"),
+        By.xpath("//a[@role='menuitem' and .//mat-icon[text()='power_settings_new']]"),
+        By.xpath("//a[@mat-menu-item]//span[contains(text(), 'Log out')]/ancestor::a"),
+        By.cssSelector("a.mat-mdc-menu-item mat-icon[data-mat-icon-type='font']"),
+        By.xpath("//a[@role='menuitem' and @tabindex='0' and contains(., 'Log out')]"),
+        By.xpath("//mat-menu//a[contains(., 'Log out')]"),
+        By.xpath("//div[contains(@class, 'mat-mdc-menu-content')]//a[contains(., 'Log out')]")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🎯 MÉTODO MEJORADO: Cierra la sesión del usuario
+ */
+public void cerrarSesion() {
+    try {
+        System.out.println("🔍 Iniciando proceso de cierre de sesión...");
+        
+        // Paso 1: Buscar y hacer clic en el botón del menú de usuario (account_circle)
+        System.out.println("🔍 Buscando botón de menú de usuario (account_circle)...");
+        WebElement botonMenuUsuario = encontrarBotonMenuUsuario();
+        
+        if (botonMenuUsuario != null) {
+            elementInteractions.scrollToElement(botonMenuUsuario);
+            wait.until(ExpectedConditions.elementToBeClickable(botonMenuUsuario));
+            realizarClicConMultiplesEstrategias(botonMenuUsuario);
+            System.out.println("✅ Clic realizado en botón de menú de usuario");
+            
+            // Esperar a que el menú se despliegue
+            System.out.println("⏳ Esperando a que el menú se despliegue...");
+            Thread.sleep(1000);
+            
+            // Verificar que el menú está visible
+            try {
+                wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//div[contains(@class, 'mat-mdc-menu-panel')]")
+                ));
+                System.out.println("✅ Menú desplegado correctamente");
+            } catch (Exception e) {
+                System.out.println("⚠️ No se pudo verificar el menú desplegado, continuando...");
+            }
+            
+        } else {
+            throw new RuntimeException("❌ No se encontró el botón de menú de usuario");
+        }
+        
+        // Paso 2: Buscar y hacer clic en "Log out"
+        System.out.println("🔍 Buscando opción 'Log out' en el menú...");
+        WebElement elementoLogOut = encontrarLogOut();
+        
+        if (elementoLogOut != null) {
+            System.out.println("✅ Elemento 'Log out' encontrado: " + elementoLogOut.getText());
+            
+            // Esperar a que sea clickeable
+            wait.until(ExpectedConditions.elementToBeClickable(elementoLogOut));
+            
+            // Hacer clic en "Log out"
+            realizarClicConMultiplesEstrategias(elementoLogOut);
+            System.out.println("✅ Clic realizado en 'Log out'");
+            
+        } else {
+            throw new RuntimeException("❌ No se encontró la opción 'Log out' en el menú");
+        }
+        
+        // Esperar a que se procese el cierre de sesión
+        System.out.println("⏱️ Esperando 2 segundos para que se procese el cierre de sesión...");
+        Thread.sleep(2000);
+        
+        // Verificar que se redirigió a la página de login (opcional)
+        try {
+            wait.until(ExpectedConditions.urlContains("login"));
+            System.out.println("✅ Sesión cerrada exitosamente - Redirigido a login");
+        } catch (Exception e) {
+            System.out.println("ℹ️ No se detectó redirección a login, pero el proceso continuó");
+        }
+        
+        System.out.println("✅ Proceso de cierre de sesión completado");
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error en el proceso de cierre de sesión: " + e.getMessage());
+        throw new RuntimeException("Fallo al cerrar sesión", e);
+    }
+}
+
+
+
 
 
 

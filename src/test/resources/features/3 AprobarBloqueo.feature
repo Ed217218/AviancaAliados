@@ -1,7 +1,7 @@
 Feature: yo como usuario valido Solicitud de bloqueos
 
   @Regresion
-    @HU002
+    @HU003
   Scenario Outline: Solicitud de bloqueos
     Given abrir el navegador
     And el usuario diligenica usuario <email> diligencia password <password>
@@ -12,6 +12,11 @@ Feature: yo como usuario valido Solicitud de bloqueos
     And Agregar bloqueo
     And El usuario hace clic en Enviar
     And El usuario valida que la solicitud de bloqueo fue creada exitosamente
+    And Cerrar sesion
+    #And Iniciar sercion como administrador
+    #And Bandeja de solicitudes de bloqueo
+    #And Gestionar la solicitud de bloqueo creada
+    #And Aprobar la solicitud de bloqueo creada
 
     Examples:
   | email                    | password    | solicitante | tourOperador  | negocio | aerolinea | numeroVuelo | origen    | destino       | fechaInicial | fechaFinal | asientos |

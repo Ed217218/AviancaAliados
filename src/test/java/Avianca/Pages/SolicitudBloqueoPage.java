@@ -86,6 +86,11 @@ public class SolicitudBloqueoPage {
         buttonPages.validarSolicitudExitosa();
     }
 
+    public void cerrarSesion() {
+        buttonPages.cerrarSesion();
+    }   
+
+
 
 
     // ===== INFORMACIÓN DEL SOLICITANTE =====    

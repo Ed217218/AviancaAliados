@@ -200,6 +200,73 @@ public class DefinitionsSteps {
         this.solicitudBloqueoPage.validarSolicitudExitosa();
     }
 
+    @When("^Cerrar sesion$")
+    public void cerrarSesion() {
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
+        this.solicitudBloqueoPage.cerrarSesion();
+    }
+
+/*/
+
+    @When("^Iniciar sesion como administrador$")
+    public void iniciarSesionComoAdministrador() {
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
+        this.solicitudBloqueoPage.iniciarSesionComoAdministrador();
+    }
+
+    @When("^Bandeja de solicitudes de bloqueo$")
+    public void bandejaDeSolicitudesDeBloqueo() {
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
+        this.solicitudBloqueoPage.bandejaDeSolicitudesDeBloqueo();
+    }
+
+    @When("^Gestionar la solicitud de bloqueo creada$")
+    public void gestionarLaSolicitudDeBloqueoCreada() {
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
+        this.solicitudBloqueoPage.gestionarLaSolicitudDeBloqueoCreada();
+    }
+
+    @When("^Aprobar la solicitud de bloqueo creada$")
+    public void aprobarLaSolicitudDeBloqueoCreada() {
+        if (this.solicitudBloqueoPage == null) {
+            if (this.proxyHelper != null) {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
+            } else {
+                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
+            }
+        }
+        this.solicitudBloqueoPage.aprobarLaSolicitudDeBloqueoCreada();
+    }
+
+    */
+
+
+/*     
+
     @When("^Cerrar el navegador$")
     public void cerrarElNavegador() {
         if (this.solicitudBloqueoPage == null) {
@@ -211,6 +278,9 @@ public class DefinitionsSteps {
         }
         this.solicitudBloqueoPage.cerrarNavegador();
     }
+
+*/
+
 
 
 
