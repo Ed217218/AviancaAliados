@@ -21,7 +21,7 @@ public class AngularInteractions {
 
     public AngularInteractions(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         this.jsExecutor = (JavascriptExecutor) driver;
     }
 

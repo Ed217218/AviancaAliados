@@ -15,7 +15,7 @@ public class ElementInteractions {
 
     public ElementInteractions(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         this.angularInteractions = new AngularInteractions(driver);
     }
 

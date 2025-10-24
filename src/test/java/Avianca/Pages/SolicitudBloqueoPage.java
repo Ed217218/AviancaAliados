@@ -33,8 +33,8 @@ public class SolicitudBloqueoPage {
         this.driver = driver;
         this.buttonPages = new ButtonPages(driver);
       //  this.elementInteractions = new ElementInteractions(driver);
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-      //  this.elementFinder = new ElementFinder(driver, 20);
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+      //  this.elementFinder = new ElementFinder(driver, 5);
         PageFactory.initElements(driver, this);
     }
     
@@ -46,7 +46,7 @@ public class SolicitudBloqueoPage {
     public SolicitudBloqueoPage(WebDriver driver, BrowserMobProxyHelper proxyHelper) {
         this.driver = driver;
         this.buttonPages = new ButtonPages(driver, proxyHelper);
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         PageFactory.initElements(driver, this);
     }
     

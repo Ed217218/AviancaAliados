@@ -20,6 +20,16 @@ public class LoginPage {
     @FindBy(how = How.ID, using = "password")
     private WebElement txtPassword;
 
+    @FindBy(how = How.ID, using = "i0116")
+    private WebElement txtEmailAdmin;               
+
+    @FindBy(how = How.ID, using = "i0118")
+    private WebElement txtPasswordAdmin;
+
+
+
+
+
 
     //esto es un constructor
     public LoginPage(WebDriver driver) {
@@ -34,4 +44,24 @@ public class LoginPage {
         txtPassword.sendKeys(password);
         buttonPages.btnLogin();
     }
+
+       public void emailAdmin(String emailAdmin) {
+        buttonPages.btnLoginAdmin();
+        txtEmailAdmin.clear();
+        txtEmailAdmin.sendKeys(emailAdmin);
+        buttonPages.btnSiguiente();
+        
+    }
+
+         public void passwordAdmin(String passwordAdmin) {
+          buttonPages.lnkUsarPassword();
+          txtPasswordAdmin.clear();
+          txtPasswordAdmin.sendKeys(passwordAdmin);
+          buttonPages.btnIniciarSesion();
+          
+     }
+
+
+
+
 }

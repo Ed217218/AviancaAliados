@@ -1,5 +1,6 @@
 package Avianca.Steps;
 
+import org.checkerframework.checker.units.qual.s;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openqa.selenium.By;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 
 import Avianca.Utils.ApiErrorCapture;
 import Avianca.Utils.ElementInteractions;
+import net.serenitybdd.screenplay.waits.Wait;
 import Avianca.Utils.CalendarUtil;
 import Avianca.Utils.ElementFinder;
 import Avianca.Utils.BrowserMobProxyHelper;
@@ -36,6 +38,15 @@ public class ButtonPages {
     // Localizador principal para login
     @FindBy(how = How.XPATH, using = "//button[@type='submit']")
     private WebElement btnLogin;
+
+    @FindBy(how = How.ID, using = "avtestonline")
+    private WebElement btnLoginAdmin;
+
+    @FindBy(how = How.ID, using = "idSIButton9")
+    private WebElement btnSiguiente;   
+
+
+
 
     // ===== BOTONES DE ACCIÓN =====
 
@@ -64,22 +75,47 @@ public class ButtonPages {
     // Campo de fecha (ejemplo)
     @FindBy(how = How.XPATH, using = "//input[@formcontrolname='fecha']")
     private WebElement dateField;
+    
+    @FindBy(id = "idA_PWD_SwitchToPassword")
+    private WebElement lnkUsarPassword;
 
+    @FindBy(id = "displayName")
+    private WebElement txtEmailDisplay;
 
+     @FindBy(how = How.ID, using = "idSIButton9")
+    private WebElement btnIniciarSesion;   
 
+    @FindBy(xpath = "//div[@role='heading' and contains(text(), '¿Quiere mantener la sesión iniciada?')]")
+    private WebElement txtTituloKmsi;
+    
+    @FindBy(xpath = "//div[@id='KmsiDescription' and contains(text(), 'Haga esto para reducir el número de veces que se le solicita que inicie sesión.')]")
+    private WebElement txtDescripcionKmsi;
 
+    @FindBy(id = "idSIButton9")
+    private WebElement btnSi;
+    
     // Selector para el contenedor del calendario
     private final By calendarContainer = By.className("mat-datepicker-content-container");
 
-    public ButtonPages(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-        this.elementInteractions = new ElementInteractions(driver);
-        this.apiErrorCapture = new ApiErrorCapture(driver);
-        this.calendarUtil = new CalendarUtil(driver);
-        this.elementFinder = new ElementFinder(driver, 20); // 20 segundos de espera
-        PageFactory.initElements(driver, this);
-    }
+ // LÍNEA ~117: Cambiar constructor
+        public ButtonPages(WebDriver driver) {
+            this.driver = driver;
+            // ✅ OPTIMIZACIÓN: Agregar polling interval de 100ms
+            this.wait = new WebDriverWait(driver, Duration.ofSeconds(3), Duration.ofMillis(100));
+            this.elementInteractions = new ElementInteractions(driver);
+            this.apiErrorCapture = new ApiErrorCapture(driver);
+            this.calendarUtil = new CalendarUtil(driver);
+            this.elementFinder = new ElementFinder(driver, 5); // 5 segundos de espera
+            PageFactory.initElements(driver, this);
+        }
+
+
+
+
+
+
+
+    
     
     /**
      * 🔧 Constructor alternativo con BrowserMobProxyHelper
@@ -111,6 +147,109 @@ public class ButtonPages {
             throw new RuntimeException("Fallo en login", e);
         }
     }
+
+    public void btnLoginAdmin() {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(btnLoginAdmin));
+            Thread.sleep(1000);
+            btnLoginAdmin.click();
+            System.out.println("✅ Login Admin realizado correctamente");
+
+        } catch (Exception e) {
+            System.err.println("❌ Error en login Admin: " + e.getMessage());
+            throw new RuntimeException("Fallo en login Admin", e);
+        }
+    }
+
+    public void btnSiguiente() {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(btnSiguiente));
+            Thread.sleep(1000);
+            btnSiguiente.click();
+            System.out.println("✅ Siguiente realizado correctamente");
+
+        } catch (Exception e) {
+            System.err.println("❌ Error en Siguiente: " + e.getMessage());
+            throw new RuntimeException("Fallo en Siguiente", e);
+        }
+    }   
+
+
+    public void lnkUsarPassword() {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(txtEmailDisplay));
+            wait.until(ExpectedConditions.visibilityOf(lnkUsarPassword));
+            wait.until(ExpectedConditions.elementToBeClickable(lnkUsarPassword));
+    
+            String textoEmail = txtEmailDisplay.getText(); // Obtener el texto actual
+            System.out.println("🔍 Texto del email: " + textoEmail);
+            String textoEsperadoEmail = "jesus.perdomo@avianca.com"; // Define el texto esperado
+
+            String textoLink = lnkUsarPassword.getText();
+            System.out.println("🔍 Texto del link: " + textoLink);
+            String textoEsperado = "Use su contraseña en su lugar";
+
+            if (textoEmail.equals(textoEsperadoEmail) && textoLink.equals(textoEsperado)) {
+                System.out.println("✅ El texto del email es correcto: " + textoEmail);
+                System.out.println("✅ El texto del link es correcto: " + textoLink);
+            Thread.sleep(1000);    
+            lnkUsarPassword.click();
+            System.out.println("✅ Link 'Usar contraseña' clickeado correctamente");
+
+            } else {
+                System.out.println("❌ Texto del link no coincide. Esperado: '" + textoEsperado + "', Encontrado: '" + textoLink + "'");
+            }
+        
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al clicar en 'Use su contraseña en su lugar': " + e.getMessage());
+            throw new RuntimeException("Fallo al clicar en 'Use su contraseña en su lugar'", e);
+        }
+    }
+
+    public void btnIniciarSesion() {
+        try {
+            wait.until(ExpectedConditions.visibilityOf(btnIniciarSesion));
+            wait.until(ExpectedConditions.elementToBeClickable(btnIniciarSesion));
+            Thread.sleep(1000);
+            btnIniciarSesion.click();
+            System.out.println("✅ Iniciar Sesión realizado correctamente");
+
+            wait.until(ExpectedConditions.visibilityOf(txtTituloKmsi));
+            wait.until(ExpectedConditions.visibilityOf(txtDescripcionKmsi));
+            Thread.sleep(1000);
+            String tituloKmsiText = txtTituloKmsi.getText();
+            String descripcionKmsiText = txtDescripcionKmsi.getText();
+          
+            System.out.println("🔍 Título KMSI: " + tituloKmsiText);
+            System.out.println("🔍 Descripción KMSI: " + descripcionKmsiText);
+
+            String textoEsperadoTitulo = "¿Quiere mantener la sesión iniciada?";
+            String textoEsperadoDescripcion = "Haga esto para reducir el número de veces que se le solicita que inicie sesión.";
+
+
+            if (tituloKmsiText.equals(textoEsperadoTitulo) || descripcionKmsiText.equals(textoEsperadoDescripcion)) {
+                System.out.println("✅ El texto del título KMSI es correcto: " + tituloKmsiText);
+                System.out.println("✅ El texto de la descripción KMSI es correcto: " + descripcionKmsiText);
+                wait.until(ExpectedConditions.visibilityOf(btnSi));
+                wait.until(ExpectedConditions.elementToBeClickable(btnSi));
+                Thread.sleep(1000);
+                btnSi.click();
+                System.out.println("✅ Botón 'Sí' clickeado correctamente");
+            }
+            else {
+                System.out.println("❌ Texto del título o descripción KMSI no coincide.");
+            }   
+
+         
+
+        } catch (Exception e) {
+            System.err.println("❌ Error en Iniciar Sesión: " + e.getMessage());
+            throw new RuntimeException("Fallo en Iniciar Sesión", e);
+         }
+    }
+
+
 
     /**
      * 🔧 MÉTODO AUXILIAR: Encuentra "Solicitudes de Bloqueo" con múltiples estrategias
@@ -464,7 +603,7 @@ public class ButtonPages {
             seleccionarFechaInicial(startDay, startMonth, startYear);
             
             System.out.println("⏳ Esperando a que el calendario inicial se cierre...");
-            Thread.sleep(2000);
+            Thread.sleep(500); // Espera para asegurar que el calendario se cierre
             
             System.out.println("🔄 Iniciando selección de fecha final...");
             seleccionarFechaFinal(endDay, endMonth, endYear);
@@ -613,7 +752,7 @@ private void clickEnviarConCaptura() {
             System.out.println("⏳ Esperando respuesta del servicio createListBlocks...");
             
             // Esperar a que la petición se complete
-            Thread.sleep(3000);
+           /// Thread.sleep(3000);
             
             // Buscar la petición del servicio createListBlocks
             System.out.println("🔍 Buscando petición createListBlocks en el tráfico capturado...");
@@ -793,7 +932,7 @@ private void esperarProcesamientoServicio() {
         if (!loaderDetectado) {
             System.out.println("ℹ️ No se detectó indicador de carga, usando espera fija...");
             // Espera fija de 5 segundos si no hay loader
-            Thread.sleep(5000);
+            //Thread.sleep(5000);
         }
         
         // Estrategia 2: Verificar si apareció mensaje de éxito
@@ -845,7 +984,7 @@ private void esperarProcesamientoServicio() {
         System.out.println("⚠️ Error al esperar procesamiento: " + e.getMessage());
         // Espera de fallback
         try {
-            Thread.sleep(3000);
+            Thread.sleep(100);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
         }

@@ -58,6 +58,23 @@ public class DefinitionsSteps {
         this.loginPage = new LoginPage(driver);
         this.loginPage.llenarLogin(email, password);
     } 
+
+
+    @When("^Iniciar sesion como administrador (.*) (.*)$")
+    public void iniciarSesionComoAdministrador(String emailAdmin, String passwordAdmin) {
+              // Inicializar loginPage después de tener el driver
+        this.loginPage = new LoginPage(driver);
+        this.loginPage.emailAdmin(emailAdmin);
+        this.loginPage.passwordAdmin(passwordAdmin);
+
+
+    }
+
+
+
+
+
+
     
     @When("^El usuario navega a Nueva Solicitud$")
     public void navegarANuevaSolicitud() {
@@ -212,20 +229,10 @@ public class DefinitionsSteps {
         this.solicitudBloqueoPage.cerrarSesion();
     }
 
-/*/
 
-    @When("^Iniciar sesion como administrador$")
-    public void iniciarSesionComoAdministrador() {
-        if (this.solicitudBloqueoPage == null) {
-            if (this.proxyHelper != null) {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
-            } else {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
-            }
-        }
-        this.solicitudBloqueoPage.iniciarSesionComoAdministrador();
-    }
 
+
+/*
     @When("^Bandeja de solicitudes de bloqueo$")
     public void bandejaDeSolicitudesDeBloqueo() {
         if (this.solicitudBloqueoPage == null) {
