@@ -2,12 +2,16 @@ package Avianca.Definitions;
 
 import io.cucumber.java.en.When;
 import org.openqa.selenium.WebDriver;
-import Avianca.Pages.LoginPage;
-import Avianca.Pages.SolicitudBloqueoPage;
-import Avianca.Steps.Conexion;
-import Avianca.Utils.BrowserMobProxyHelper;
 //import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
+
+import Avianca.Steps.Conexion;
+import Avianca.Utils.BrowserMobProxyHelper;
+
+import Avianca.Pages.LoginPage;
+import Avianca.Pages.SolicitudBloqueoPage;
+import Avianca.Pages.AdminBloqueoPage;
+
 
 public class DefinitionsSteps {
 
@@ -16,6 +20,7 @@ public class DefinitionsSteps {
     private LoginPage loginPage;
     private SolicitudBloqueoPage solicitudBloqueoPage;
     private BrowserMobProxyHelper proxyHelper;
+    private AdminBloqueoPage adminBloqueoPage;
 
     @Given("^abrir el navegador$")
     public void abrir_navegador() {
@@ -231,32 +236,24 @@ public class DefinitionsSteps {
 
 
 
-
-/*
     @When("^Bandeja de solicitudes de bloqueo$")
     public void bandejaDeSolicitudesDeBloqueo() {
-        if (this.solicitudBloqueoPage == null) {
-            if (this.proxyHelper != null) {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
-            } else {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
-            }
-        }
-        this.solicitudBloqueoPage.bandejaDeSolicitudesDeBloqueo();
+        this.adminBloqueoPage = new AdminBloqueoPage(driver);  
+        this.adminBloqueoPage.bandejaDeSolicitudesDeBloqueo();
+        this.adminBloqueoPage.hacerClicBandejaDeSolicitudes();
     }
+
+    
 
     @When("^Gestionar la solicitud de bloqueo creada$")
     public void gestionarLaSolicitudDeBloqueoCreada() {
-        if (this.solicitudBloqueoPage == null) {
-            if (this.proxyHelper != null) {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
-            } else {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
-            }
-        }
-        this.solicitudBloqueoPage.gestionarLaSolicitudDeBloqueoCreada();
+        this.adminBloqueoPage = new AdminBloqueoPage(driver);
+        this.adminBloqueoPage.gestionarLaSolicitudDeBloqueoCreada();
     }
 
+    
+    /*
+    
     @When("^Aprobar la solicitud de bloqueo creada$")
     public void aprobarLaSolicitudDeBloqueoCreada() {
         if (this.solicitudBloqueoPage == null) {

@@ -620,21 +620,6 @@ public class SolicitudBloqueoPage {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // ===== MÉTODOS DE LLENADO DE FORMULARIOS =====
     
     /**

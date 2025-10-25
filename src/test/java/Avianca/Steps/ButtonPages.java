@@ -4,7 +4,7 @@ import org.checkerframework.checker.units.qual.s;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openqa.selenium.By;
-//import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -34,6 +34,10 @@ public class ButtonPages {
     private CalendarUtil calendarUtil;
     private ElementFinder elementFinder;
     private BrowserMobProxyHelper proxyHelper; // Helper para captura HTTP
+
+    // ✅ VARIABLE STATIC: Persiste durante toda la ejecución del test, incluso entre sesiones
+    // NO se borra cuando cierras sesión o creas una nueva instancia de ButtonPages
+    private static String numeroSolicitudCreada = null;
 
     // Localizador principal para login
     @FindBy(how = How.XPATH, using = "//button[@type='submit']")
@@ -93,6 +97,13 @@ public class ButtonPages {
 
     @FindBy(id = "idSIButton9")
     private WebElement btnSi;
+
+    @FindBy(how = How.XPATH, using = "//span[text()='Bandeja de Solicitudes']")
+    private WebElement txtBandejaSolicitudes;   
+
+
+
+
     
     // Selector para el contenedor del calendario
     private final By calendarContainer = By.className("mat-datepicker-content-container");
@@ -1053,6 +1064,7 @@ private WebElement encontrarNumeroSolicitud() {
 
 /**
  * 🎯 MÉTODO MEJORADO: Valida que la solicitud fue exitosa y extrae el número de solicitud
+ * ✅ GUARDA el número en memoria para uso posterior
  * @return Número de solicitud (ej: "S80767")
  */
 public String validarSolicitudExitosa() {
@@ -1060,7 +1072,7 @@ public String validarSolicitudExitosa() {
         System.out.println("🔍 Validando que la solicitud de bloqueo fue creada exitosamente...");
         
         // Esperar un momento para que el elemento aparezca
-        Thread.sleep(1000);
+        Thread.sleep(3000);
         
         // Buscar el elemento con el número de solicitud
         WebElement elementoSolicitud = encontrarNumeroSolicitud();
@@ -1079,10 +1091,15 @@ public String validarSolicitudExitosa() {
             String numeroSolicitud = extraerNumeroSolicitud(textoCompleto);
             
             if (numeroSolicitud != null && !numeroSolicitud.isEmpty()) {
+                // ✅ GUARDAR EN VARIABLE STATIC (persiste entre sesiones)
+                ButtonPages.numeroSolicitudCreada = numeroSolicitud;
+                
                 System.out.println("✅ Validación exitosa");
                 System.out.println("📋 ========================================");
                 System.out.println("📄 SOLICITUD CREADA EXITOSAMENTE");
                 System.out.println("🆔 Número de Solicitud: " + numeroSolicitud);
+                System.out.println("💾 Número guardado en MEMORIA STATIC");
+                System.out.println("🔒 Persistirá incluso después de cerrar sesión");
                 System.out.println("📋 ========================================");
                 
                 return numeroSolicitud;
@@ -1134,12 +1151,44 @@ private String extraerNumeroSolicitud(String textoCompleto) {
 }
 
 /**
- * 🎯 MÉTODO PÚBLICO: Obtiene el número de solicitud después de enviar
- * Este método puede ser llamado desde DefinitionsSteps
- * @return Número de solicitud
+ * 🎯 MÉTODO MEJORADO: Obtiene el número de solicitud guardado en memoria STATIC
+ * Este método puede ser llamado desde cualquier clase después de validarSolicitudExitosa()
+ * @return Número de solicitud guardado (ej: "S80767")
  */
 public String obtenerNumeroSolicitud() {
-    return validarSolicitudExitosa();
+    if (ButtonPages.numeroSolicitudCreada != null && !ButtonPages.numeroSolicitudCreada.isEmpty()) {
+        System.out.println("📋 Número de solicitud recuperado de MEMORIA STATIC: " + ButtonPages.numeroSolicitudCreada);
+        System.out.println("🔒 Variable persistió después de cerrar sesión");
+        return ButtonPages.numeroSolicitudCreada;
+    } else {
+        System.err.println("❌ ERROR: No hay número de solicitud guardado en memoria");
+        System.err.println("⚠️ Asegúrate de llamar validarSolicitudExitosa() antes de obtenerNumeroSolicitud()");
+        System.err.println("💡 El número de solicitud se guarda cuando se valida la creación exitosa");
+        throw new RuntimeException("❌ No se pudo obtener el número de solicitud porque no fue guardado previamente");
+    }
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR OPCIONAL: Limpia el número de solicitud guardado
+ * Útil para empezar un nuevo test desde cero
+ */
+public void limpiarNumeroSolicitud() {
+    System.out.println("🧹 Limpiando número de solicitud de memoria STATIC...");
+    ButtonPages.numeroSolicitudCreada = null;
+    System.out.println("✅ Número de solicitud limpiado");
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR OPCIONAL: Verifica si hay un número de solicitud guardado
+ * @return true si hay número guardado, false si no
+ */
+public boolean tieneNumeroSolicitudGuardado() {
+    boolean tiene = ButtonPages.numeroSolicitudCreada != null && !ButtonPages.numeroSolicitudCreada.isEmpty();
+    System.out.println("🔍 ¿Tiene número guardado?: " + tiene);
+    if (tiene) {
+        System.out.println("   Número guardado en STATIC: " + ButtonPages.numeroSolicitudCreada);
+    }
+    return tiene;
 }
 
 /**
@@ -1249,6 +1298,157 @@ public void cerrarSesion() {
     }
 }
 
+
+
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra "Administración de Bloqueos" con múltiples estrategias
+ */
+private WebElement encontrarAdministracionDeBloqueos() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-104"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Administracion de Bloqueos']"),
+        By.xpath("//span[text()='Administracion de Bloqueos']"),
+        By.xpath("//*[contains(text(), 'Administracion de Bloqueos')]"),
+        By.xpath("//a[@id='horizontal-menu-item-104']//span[@class='horizontal-menu-title']"),
+        By.xpath("//a[contains(@class, 'mat-mdc-button') and .//span[text()='Administracion de Bloqueos']]")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+
+/**
+ * 🎯 MÉTODO MEJORADO: Clic en "Administración de Bloqueos" para desplegar submenú
+ */
+public void btnAdministracionDeBloqueos() {
+    try {
+        System.out.println("🔍 Inicia 'Administración de Bloqueos'...");
+        System.out.println("🔍 Buscando elemento 'Administración de Bloqueos'...");
+        WebElement elemento = encontrarAdministracionDeBloqueos();
+
+        if (elemento != null) {                     
+            System.out.println("🔍 Elemento encontrado: " + elemento.getText());
+            elementInteractions.scrollToElement(elemento);
+            wait.until(ExpectedConditions.elementToBeClickable(elemento));
+            elemento.click();
+            System.out.println("✅ Clic realizado en 'Administración de Bloqueos'");
+            
+            boolean subMenuDesplegado = esperarSubMenuDesplegadoAdminBloqueos();
+            
+            if (subMenuDesplegado) {
+                System.out.println("✅ Submenú desplegado correctamente");
+                System.out.println("⏳ Esperando a que el menú se estabilice...");
+                    try {
+                           Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    
+                    }            
+                mantenerSubMenuAbiertoAdminBloqueos();
+            } else {
+                System.out.println("⚠️ El submenú no se desplegó después del clic");
+                realizarClicConMultiplesEstrategias(elemento);
+                esperarSubMenuDesplegadoAdminBloqueos();
+            }
+        } else {
+            System.out.println("❌ No se encontró el elemento 'Administración de Bloqueos'");
+        }
+    } catch (Exception e) {
+        System.err.println("❌ Error en clic sobre 'Administración de Bloqueos': " + e.getMessage());
+        throw new RuntimeException("Fallo al interactuar con 'Administración de Bloqueos'", e);
+    }
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Espera a que el submenú de Administración de Bloqueos se despliegue
+ */
+private boolean esperarSubMenuDesplegadoAdminBloqueos() {
+    try {
+        System.out.println("⏳ Esperando a que el submenú se despliegue...");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("horizontal-sub-menu-104")));
+        WebElement bandejaSolicitudes = wait.until(ExpectedConditions.visibilityOfNestedElementsLocatedBy(
+            By.id("horizontal-sub-menu-104"),
+            By.xpath(".//span[text()='Bandeja de Solicitudes']")
+        )).get(0);
+        
+        return bandejaSolicitudes.isDisplayed();
+    } catch (Exception e) {
+        System.out.println("⚠️ Error esperando submenú: " + e.getMessage());
+        return false;
+    }
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Mantiene el submenú de Administración de Bloqueos abierto moviendo el mouse
+ */
+private void mantenerSubMenuAbiertoAdminBloqueos() {
+    try {
+        WebElement subMenu = driver.findElement(By.id("horizontal-sub-menu-104"));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(subMenu, subMenu.getSize().width / 2, subMenu.getSize().height / 2).perform();
+        System.out.println("✅ Mouse movido al submenú para mantenerlo abierto");
+        Thread.sleep(5000);
+    } catch (Exception e) {
+        System.out.println("⚠️ No se pudo mantener el submenú abierto: " + e.getMessage());
+        throw new RuntimeException("Error al mantener el submenú abierto", e);
+    }
+}
+
+
+
+
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra "Bandeja de Solicitudes" con múltiples estrategias
+ */
+private WebElement encontrarBandejaDeSolicitudes() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-82"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Bandeja de Solicitudes']"),
+        By.xpath("//span[text()='Bandeja de Solicitudes']"),
+        By.xpath("//*[contains(text(), 'Bandeja de Solicitudes')]"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-82']"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@href='/Inbox/Index']"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//span[text()='Bandeja de Solicitudes']/ancestor::a"),
+        By.xpath("//a[@href='/Inbox/Index'][.//span[text()='Bandeja de Solicitudes']]")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+/**
+ * 🎯 MÉTODO MEJORADO: Clic en "Bandeja de Solicitudes" del submenú
+ */
+    public void btnBandejaDeSolicitudes() {
+        try {
+            System.out.println("🔍 Buscando elemento 'Bandeja de Solicitudes'...");
+            WebElement elemento = encontrarBandejaDeSolicitudes();
+            System.out.println("🔍 Elemento encontrado: " + elemento.getText());
+            wait.until(ExpectedConditions.visibilityOf(elemento));
+            wait.until(ExpectedConditions.elementToBeClickable(elemento));
+            elementInteractions.scrollToElement(elemento);  
+
+
+            if ( elemento != null && elemento.isDisplayed()) {
+                System.out.println("✅ Elemento 'Bandeja de Solicitudes' encontrado y visible");
+                realizarClicConMultiplesEstrategias(elemento);
+                System.out.println("✅ Clic realizado en 'Bandeja de Solicitudes'");
+
+                wait.until(ExpectedConditions.urlContains("/Inbox/Index"));
+                System.out.println("✅ Navegación exitosa a /Inbox/Index");
+
+/*                 System.err.println("✅ Elemento menu: " + txtBandejaSolicitudes.getText());
+                wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='Bandeja de Solicitudes']")));
+                System.out.println("🔍 Elemento encontrado: " + txtBandejaSolicitudes.getText());
+*/
+
+            } else {
+                throw new RuntimeException("❌ No se encontró el elemento 'Bandeja de Solicitudes'");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error en clic sobre 'Bandeja de Solicitudes': " + e.getMessage());
+            throw new RuntimeException("Fallo al interactuar con 'Bandeja de Solicitudes'", e); 
+        
+        }
+    }
 
 
 

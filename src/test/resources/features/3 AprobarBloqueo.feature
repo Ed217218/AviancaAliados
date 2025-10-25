@@ -19,11 +19,11 @@ Feature: yo como usuario valido Solicitud de bloqueos
      
   # ===== FASE 3: APROBAR SOLICITUD COMO ADMINISTRADOR =====
     And Iniciar sesion como administrador <emailAdmin> <passwordAdmin>
-    #And Bandeja de solicitudes de bloqueo
-    #And Gestionar la solicitud de bloqueo creada
+    And Bandeja de solicitudes de bloqueo
+    And Gestionar la solicitud de bloqueo creada
     #And Aprobar la solicitud de bloqueo creada
 
     Examples:
   | email                     | password      | solicitante | tourOperador  | negocio | aerolinea | numeroVuelo | origen    | destino       | fechaInicial | fechaFinal | asientos |  emailAdmin                | passwordAdmin |
-  | patest240221@yopmail.com  | TestAv2024%   | Test2       | Quasarnautica | Prueba2 | AV        | 1632        | UIO,Quito | "GPS,Baltra"  | 2026-01-04   | 2026-01-10 | 10       |  jesus.perdomo@avianca.com | calixtoH2017$ |
+  | patest240221@yopmail.com  | TestAv2024%   | Test3       | Quasarnautica | Prueba3 | AV        | 1632        | UIO,Quito | "GPS,Baltra"  | 2026-02-04   | 2026-02-10 | 10       |  jesus.perdomo@avianca.com | calixtoH2017$ |
  
