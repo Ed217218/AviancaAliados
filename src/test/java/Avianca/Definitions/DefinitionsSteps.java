@@ -1,6 +1,8 @@
 package Avianca.Definitions;
 
 import io.cucumber.java.en.When;
+
+//import org.checkerframework.checker.units.qual.s;
 import org.openqa.selenium.WebDriver;
 //import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -74,11 +76,6 @@ public class DefinitionsSteps {
 
 
     }
-
-
-
-
-
 
     
     @When("^El usuario navega a Nueva Solicitud$")
@@ -252,24 +249,70 @@ public class DefinitionsSteps {
     }
 
     
-    /*
-    
     @When("^Aprobar la solicitud de bloqueo creada$")
     public void aprobarLaSolicitudDeBloqueoCreada() {
-        if (this.solicitudBloqueoPage == null) {
-            if (this.proxyHelper != null) {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
-            } else {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
-            }
-        }
-        this.solicitudBloqueoPage.aprobarLaSolicitudDeBloqueoCreada();
+        this.adminBloqueoPage = new AdminBloqueoPage(driver);
+        this.adminBloqueoPage.aprobarLaSolicitudDeBloqueoCreada();
     }
 
-    */
+    @When("^Hacer clic en crear bloqueos$")
+    public void hacerClicCrearBloqueos() {
+        this.adminBloqueoPage = new AdminBloqueoPage(driver);
+        this.adminBloqueoPage.bandejaDeSolicitudesDeBloqueo();
+        this.adminBloqueoPage.hacerClicCrearBloqueos();
+    }
+
+    @When("^Diligenciar bloqueos (.*) (.*) (.*)$")
+    public void diligenciarBloqueos(String negocio, String solicitante, String operador) {
+        this.adminBloqueoPage = new AdminBloqueoPage(driver); 
+
+        System.out.println("🔍 DEBUG - Parámetros recibidos:");
+        System.out.println("   Negocio: '" + negocio + "'");
+        System.out.println("   Solicitante: '" + solicitante + "'");
+        System.out.println("   Operador: '" + operador + "'");
+
+        this.adminBloqueoPage.diligenciarBloqueos(negocio, solicitante, operador);
+    }
+
+    @When("^Diligenciar vuelo (.*) (.*) (.*) (.*) (.*) (.*) (.*) (.*)$")
+    public void diligenciarVuelo(String aerolinea, String numeroVuelo, String asientos, String clase, String origen, 
+    String destino, String fechaInicial, String fechaFinal) {
+        this.adminBloqueoPage = new AdminBloqueoPage(driver);
+        
+                    System.out.println("🔍 DEBUG - Parámetros recibidos:");
+                    System.out.println("   Aerolínea: '" + aerolinea + "'");
+                    System.out.println("   Número de Vuelo: '" + numeroVuelo + "'");
+                    System.out.println("   Asientos: '" + asientos + "'");
+                    System.out.println("   Clase: '" + clase + "'");
+                    System.out.println("   Origen: '" + origen + "'");
+                    System.out.println("   Destino: '" + destino + "'");
+                    System.out.println("   Fecha Inicial: '" + fechaInicial + "'");
+                    System.out.println("   Fecha Final: '" + fechaFinal + "'");
+                   
+        
+        this.adminBloqueoPage.diligenciarVuelo(aerolinea, numeroVuelo, asientos, clase, origen, destino, fechaInicial, fechaFinal);
+    }
+
+
+    @When("^Diligenciar frcuencia de vuelo admin$")
+        public void diligenciarFrecuenciaDeVueloAdmin() {
+        this.adminBloqueoPage = new AdminBloqueoPage(driver);
+        this.adminBloqueoPage.seleccionarTodosLosDias();
+    }
+
+
+    @When("^Agregar bloqueo admin$")
+        public void agregarBloqueoAdmin() {
+        this.adminBloqueoPage = new AdminBloqueoPage(driver);
+        this.adminBloqueoPage.hacerClicAgregarBloqueo();
+    }
+
+
 
 
 /*     
+
+<aerolinea> <numeroVuelo> <asientos> <clase> <origen> <destino> <fechaInicial> <fechaFinal>  
 
     @When("^Cerrar el navegador$")
     public void cerrarElNavegador() {

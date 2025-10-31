@@ -21,7 +21,7 @@ Feature: yo como usuario valido Solicitud de bloqueos
     And Iniciar sesion como administrador <emailAdmin> <passwordAdmin>
     And Bandeja de solicitudes de bloqueo
     And Gestionar la solicitud de bloqueo creada
-    #And Aprobar la solicitud de bloqueo creada
+    And Aprobar la solicitud de bloqueo creada
 
     Examples:
   | email                     | password      | solicitante | tourOperador  | negocio | aerolinea | numeroVuelo | origen    | destino       | fechaInicial | fechaFinal | asientos |  emailAdmin                | passwordAdmin |

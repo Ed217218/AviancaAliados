@@ -1,10 +1,10 @@
 package Avianca.Steps;
 
-import org.checkerframework.checker.units.qual.s;
+//import org.checkerframework.checker.units.qual.s;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
+//import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -20,7 +20,7 @@ import java.time.LocalDate;
 
 import Avianca.Utils.ApiErrorCapture;
 import Avianca.Utils.ElementInteractions;
-import net.serenitybdd.screenplay.waits.Wait;
+//import net.serenitybdd.screenplay.waits.Wait;
 import Avianca.Utils.CalendarUtil;
 import Avianca.Utils.ElementFinder;
 import Avianca.Utils.BrowserMobProxyHelper;
@@ -30,7 +30,7 @@ public class ButtonPages {
     private WebDriver driver;
     private WebDriverWait wait;
     private ElementInteractions elementInteractions;
-    private ApiErrorCapture apiErrorCapture;
+    //private ApiErrorCapture apiErrorCapture;
     private CalendarUtil calendarUtil;
     private ElementFinder elementFinder;
     private BrowserMobProxyHelper proxyHelper; // Helper para captura HTTP
@@ -114,7 +114,7 @@ public class ButtonPages {
             // ✅ OPTIMIZACIÓN: Agregar polling interval de 100ms
             this.wait = new WebDriverWait(driver, Duration.ofSeconds(3), Duration.ofMillis(100));
             this.elementInteractions = new ElementInteractions(driver);
-            this.apiErrorCapture = new ApiErrorCapture(driver);
+       //     this.apiErrorCapture = new ApiErrorCapture(driver);
             this.calendarUtil = new CalendarUtil(driver);
             this.elementFinder = new ElementFinder(driver, 5); // 5 segundos de espera
             PageFactory.initElements(driver, this);
@@ -1339,7 +1339,7 @@ public void btnAdministracionDeBloqueos() {
                 System.out.println("✅ Submenú desplegado correctamente");
                 System.out.println("⏳ Esperando a que el menú se estabilice...");
                     try {
-                           Thread.sleep(5000);
+                           Thread.sleep(1500);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     
@@ -1414,6 +1414,7 @@ private WebElement encontrarBandejaDeSolicitudes() {
     };
     return elementFinder.encontrarElemento(localizadores);
 }
+
 /**
  * 🎯 MÉTODO MEJORADO: Clic en "Bandeja de Solicitudes" del submenú
  */
@@ -1452,6 +1453,66 @@ private WebElement encontrarBandejaDeSolicitudes() {
 
 
 
+    /**
+ * 🔧 MÉTODO AUXILIAR: Encuentra "Creacion de Bloqueos" con múltiples estrategias
+ */
+private WebElement encontrarCreacionDeBloqueos() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-41"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Creacion de Bloqueos']"),
+        By.xpath("//span[text()='Creacion de Bloqueos']"),
+        By.xpath("//*[contains(text(), 'Creacion de Bloqueos')]"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-41']"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@href='/BlockFlights/Index']"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//span[text()='Creacion de Bloqueos']/ancestor::a"),
+        By.xpath("//a[@href='/BlockFlights/Index'][.//span[text()='Creacion de Bloqueos']]"),
+        By.xpath("//a[@mat-button and @href='/BlockFlights/Index']"),
+        By.cssSelector("#horizontal-menu-item-41"),
+        By.cssSelector("a[href='/BlockFlights/Index']"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@mat-button and contains(@class, 'mat-mdc-button')]//span[text()='Creacion de Bloqueos']/ancestor::a")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🎯 MÉTODO MEJORADO: Clic en "Bandeja de Solicitudes" del submenú
+ */
+
+
+    public void btnCrearBloqueos() {
+        
+          try {
+            System.out.println("🔍 Buscando elemento 'Creacion de Bloqueos'...");
+            WebElement elemento = encontrarCreacionDeBloqueos();
+            System.out.println("🔍 Elemento encontrado: " + elemento.getText());
+            wait.until(ExpectedConditions.visibilityOf(elemento));
+            wait.until(ExpectedConditions.elementToBeClickable(elemento));
+            elementInteractions.scrollToElement(elemento);  
+
+
+            if ( elemento != null && elemento.isDisplayed()) {
+                System.out.println("✅ Elemento 'Creacion de Bloqueos' encontrado y visible");
+                realizarClicConMultiplesEstrategias(elemento);
+                System.out.println("✅ Clic realizado en 'Creacion de Bloqueos'");
+
+                wait.until(ExpectedConditions.urlContains("/BlockFlights/Index"));
+                System.out.println("✅ Navegación exitosa a /BlockFlights/Index");
+
+/*                 System.err.println("✅ Elemento menu: " + txtBandejaSolicitudes.getText());
+                wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='Bandeja de Solicitudes']")));
+                System.out.println("🔍 Elemento encontrado: " + txtBandejaSolicitudes.getText());
+*/
+
+            } else {
+                throw new RuntimeException("❌ No se encontró el elemento 'Creacion de Bloqueos'");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error en clic sobre 'Creacion de Bloqueos': " + e.getMessage());
+            throw new RuntimeException("Fallo al interactuar con 'Creacion de Bloqueos'", e);
+
+        }
+
+    }
 
 
     /**
