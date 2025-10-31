@@ -331,4 +331,19 @@ public class DefinitionsSteps {
 
 
 
-}    
+    
+    @When("^El usuario hace clic en ejecutar$")
+    public void elUsuarioHaceClicEnEjecutar() {
+        this.adminBloqueoPage = new AdminBloqueoPage(driver);
+        boolean clickEjecutar = this.adminBloqueoPage.clickBotonEjecutar();
+        if (!clickEjecutar) {
+            throw new RuntimeException("No se pudo hacer clic en el botón 'Ejecutar'");
+        }
+    }
+
+    @When("^El usuario valida que la solicitud de bloqueo fue creada exitosamente admin$")
+    public void elUsuarioValidaQueLaSolicitudDeBloqueoFueCreadaExitosamenteAdmin() {
+        this.adminBloqueoPage = new AdminBloqueoPage(driver);
+        this.adminBloqueoPage.gestionarLaSolicitudDeBloqueoCreada();
+    }
+}
