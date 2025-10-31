@@ -668,7 +668,7 @@ private boolean marcarCheckboxProcesado() {
  * 🔧 MÉTODO AUXILIAR: Hace clic en el botón "Ejecutar" de la página principal
  * @return true si se hizo clic exitosamente, false en caso contrario
  */
-private boolean clickBotonEjecutar() {
+    public boolean clickBotonEjecutar() {
     try {
         System.out.println("🔍 Buscando botón 'Ejecutar' en la página principal...");
         
