@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.time.LocalDate;
 
-import Avianca.Utils.ApiErrorCapture;
+//import Avianca.Utils.ApiErrorCapture;
 import Avianca.Utils.ElementInteractions;
 //import net.serenitybdd.screenplay.waits.Wait;
 import Avianca.Utils.CalendarUtil;
