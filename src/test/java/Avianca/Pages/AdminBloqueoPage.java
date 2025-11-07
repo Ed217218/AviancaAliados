@@ -38,6 +38,10 @@ public class AdminBloqueoPage {
     private ElementFinder elementFinder;
     private ElementInteractions elementInteractions;
 
+
+ private static String numeroSolicitudCreada = null;
+
+
     public AdminBloqueoPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -1387,6 +1391,151 @@ private boolean clickBotonEjecutarPopup() {
         }
     }
 
+
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra el elemento con el número de solicitud usando múltiples estrategias
+ */
+private WebElement encontrarNumeroSolicitud() {
+    By[] localizadores = {
+        By.xpath("//mat-card-subtitle[contains(text(), 'Solicitud de bloqueos')]"),
+        By.xpath("//mat-card-subtitle[@class='mat-mdc-card-subtitle' and contains(text(), 'Solicitud de bloqueos')]"),
+        By.cssSelector("mat-card-subtitle.mat-mdc-card-subtitle"),
+        By.xpath("//div[@class='mat-mdc-card-header-text']//mat-card-subtitle"),
+        By.xpath("//mat-card-subtitle[contains(@class, 'mat-mdc-card-subtitle')]"),
+        By.xpath("//*[contains(@class, 'mat-mdc-card-subtitle') and contains(text(), 'Solicitud de bloqueos')]")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🎯 MÉTODO MEJORADO: Valida que la solicitud fue exitosa y extrae el número de solicitud
+ * ✅ GUARDA el número en memoria para uso posterior
+ * @return Número de solicitud (ej: "S80767")
+ */
+public String VerificarBloqueoCreado() {
+    try {
+        System.out.println("🔍 Validando que el bloqueo fue creado exitosamente...");
+        
+        // Esperar un momento para que el elemento aparezca
+        Thread.sleep(3000);
+        
+        // Buscar el elemento con el número de solicitud
+        WebElement elementoSolicitud = encontrarNumeroSolicitud();
+        
+        if (elementoSolicitud != null && elementoSolicitud.isDisplayed()) {
+            // Obtener el texto completo: "Solicitud de bloqueos - S80767"
+            String textoCompleto = elementoSolicitud.getText().trim();
+            System.out.println("📄 Texto encontrado: " + textoCompleto);
+            
+            // Validar que contiene "Solicitud de bloqueos"
+            if (!textoCompleto.contains("Creacion de bloqueos")) {
+                throw new RuntimeException("❌ El texto no contiene 'Creacion de bloqueos': " + textoCompleto);
+            }
+            
+            // Extraer el número de solicitud usando expresión regular
+            String numeroSolicitud = extraerNumeroSolicitud(textoCompleto);
+            
+            if (numeroSolicitud != null && !numeroSolicitud.isEmpty()) {
+                // ✅ GUARDAR EN VARIABLE STATIC (persiste entre sesiones)
+                AdminBloqueoPage.numeroSolicitudCreada = numeroSolicitud;
+                
+                System.out.println("✅ Validación exitosa");
+                System.out.println("📋 ========================================");
+                System.out.println("📄 BLOQUEO CREADO EXITOSAMENTE");
+                System.out.println("🆔 Número de Bloqueo: " + numeroSolicitud);
+                System.out.println("💾 Número guardado en MEMORIA STATIC");
+                System.out.println("🔒 Persistirá incluso después de cerrar sesión");
+                System.out.println("📋 ========================================");
+                
+                return numeroSolicitud;
+            } else {
+                throw new RuntimeException("❌ No se pudo extraer el número de bloqueo del texto: " + textoCompleto);
+            }
+            
+        } else {
+            throw new RuntimeException("❌ No se encontró el elemento con el número de bloqueo");
+        }
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al validar bloqueo exitoso: " + e.getMessage());
+        throw new RuntimeException("Fallo al validar la creación del bloqueo", e);
+    }
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Extrae el número de solicitud del texto usando regex
+ * @param textoCompleto Texto completo que contiene el número (ej: "Solicitud de bloqueos - S80767")
+ * @return Número de solicitud (ej: "S80767")
+ */
+private String extraerNumeroSolicitud(String textoCompleto) {
+    try {
+        // Método 1: Split por guion (más simple)
+        if (textoCompleto.contains("-")) {
+            String numeroSolicitud = textoCompleto.split("-")[1].trim();
+            System.out.println("✅ Número extraído con split: " + numeroSolicitud);
+            return numeroSolicitud;
+        }
+        
+        // Método 2: Expresión regular (más robusto)
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("S\\d+");
+        java.util.regex.Matcher matcher = pattern.matcher(textoCompleto);
+        
+        if (matcher.find()) {
+            String numeroSolicitud = matcher.group();
+            System.out.println("✅ Número extraído con regex: " + numeroSolicitud);
+            return numeroSolicitud;
+        }
+        
+        System.err.println("⚠️ No se pudo extraer el número de bloqueo");
+        return "";
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al extraer número de bloqueo: " + e.getMessage());
+        return "";
+    }
+}
+
+/**
+ * 🎯 MÉTODO MEJORADO: Obtiene el número de solicitud guardado en memoria STATIC
+ * Este método puede ser llamado desde cualquier clase después de validarSolicitudExitosa()
+ * @return Número de solicitud guardado (ej: "S80767")
+ */
+public String obtenerNumeroSolicitud() {
+    if (AdminBloqueoPage.numeroSolicitudCreada != null && !AdminBloqueoPage.numeroSolicitudCreada.isEmpty()) {
+        System.out.println("📋 Número de bloqueo recuperado de MEMORIA STATIC: " + AdminBloqueoPage.numeroSolicitudCreada);
+        System.out.println("🔒 Variable persistió después de cerrar sesión");
+        return AdminBloqueoPage.numeroSolicitudCreada;
+    } else {
+        System.err.println("❌ ERROR: No hay número de bloqueo guardado en memoria");
+        System.err.println("⚠️ Asegúrate de llamar VerificarBloqueoCreado() antes de obtenerNumeroSolicitud()");
+        System.err.println("💡 El número de bloqueo se guarda cuando se valida la creación exitosa");
+        throw new RuntimeException("❌ No se pudo obtener el número de bloqueo porque no fue guardado previamente");
+    }
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR OPCIONAL: Limpia el número de solicitud guardado
+ * Útil para empezar un nuevo test desde cero
+ */
+public void limpiarNumeroSolicitud() {
+    System.out.println("🧹 Limpiando número de bloqueo de memoria STATIC...");
+    AdminBloqueoPage.numeroSolicitudCreada = null;
+    System.out.println("✅ Número de bloqueo limpiado");
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR OPCIONAL: Verifica si hay un número de solicitud guardado
+ * @return true si hay número guardado, false si no
+ */
+public boolean tieneNumeroSolicitudGuardado() {
+    boolean tiene = AdminBloqueoPage.numeroSolicitudCreada != null && !AdminBloqueoPage.numeroSolicitudCreada.isEmpty();
+    System.out.println("🔍 ¿Tiene número guardado?: " + tiene);
+    if (tiene) {
+        System.out.println("   Número guardado en STATIC: " + AdminBloqueoPage.numeroSolicitudCreada);
+    }
+    return tiene;
+}
 
 
 

@@ -56,7 +56,7 @@ public class JavascriptResaltaHtml {
             js.executeScript(
                 "arguments[0].setAttribute('style', arguments[1]);",
                 elemento,
-                "background-color: #FFFF00 !important; border: 4px solid #FF0000 !important; box-shadow: 0 0 20px #FF0000 !important;"
+                "background-color: #81C2FF !important; border: 2px solid #000000ff !important; box-shadow: 0 0 8px #ffffffff !important;"
             );
             
             System.out.println("✨ Elemento resaltado visualmente");

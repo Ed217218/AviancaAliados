@@ -4,16 +4,18 @@ import io.cucumber.java.en.When;
 
 //import org.checkerframework.checker.units.qual.s;
 import org.openqa.selenium.WebDriver;
+
+import io.cucumber.java.en.And;
 //import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
-
+import io.cucumber.java.en.Then;
 import Avianca.Steps.Conexion;
 import Avianca.Utils.BrowserMobProxyHelper;
 
 import Avianca.Pages.LoginPage;
 import Avianca.Pages.SolicitudBloqueoPage;
 import Avianca.Pages.AdminBloqueoPage;
-
+import Avianca.Pages.BloqueoPages;
 
 public class DefinitionsSteps {
 
@@ -23,6 +25,7 @@ public class DefinitionsSteps {
     private SolicitudBloqueoPage solicitudBloqueoPage;
     private BrowserMobProxyHelper proxyHelper;
     private AdminBloqueoPage adminBloqueoPage;
+    private BloqueoPages bloqueoPages;
 
     @Given("^abrir el navegador$")
     public void abrir_navegador() {
@@ -308,29 +311,6 @@ public class DefinitionsSteps {
     }
 
 
-
-
-/*     
-
-<aerolinea> <numeroVuelo> <asientos> <clase> <origen> <destino> <fechaInicial> <fechaFinal>  
-
-    @When("^Cerrar el navegador$")
-    public void cerrarElNavegador() {
-        if (this.solicitudBloqueoPage == null) {
-            if (this.proxyHelper != null) {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver, proxyHelper);
-            } else {
-                this.solicitudBloqueoPage = new SolicitudBloqueoPage(driver);
-            }
-        }
-        this.solicitudBloqueoPage.cerrarNavegador();
-    }
-
-*/
-
-
-
-
     
     @When("^El usuario hace clic en ejecutar$")
     public void elUsuarioHaceClicEnEjecutar() {
@@ -344,6 +324,108 @@ public class DefinitionsSteps {
     @When("^El usuario valida que la solicitud de bloqueo fue creada exitosamente admin$")
     public void elUsuarioValidaQueLaSolicitudDeBloqueoFueCreadaExitosamenteAdmin() {
         this.adminBloqueoPage = new AdminBloqueoPage(driver);
-        this.adminBloqueoPage.gestionarLaSolicitudDeBloqueoCreada();
+        this.adminBloqueoPage.VerificarBloqueoCreado();
     }
+
+    @When("^El usuario navega a bloqueos$")
+    public void elUsuarioNavegaABloqueos() {
+        this.bloqueoPages = new BloqueoPages(driver);
+        this.bloqueoPages.navagarAdminBloqueos();
+        this.bloqueoPages.navegarBloqueos();
+
+    }
+
+
+    @When("^El usuario busca el bloqueo creado previamente con fechas (.*) (.*)$")
+    public void elUsuarioBuscaElBloqueoCreadoPreviamenteConFechas(String fechaInicio, String fechaFin) {
+        this.bloqueoPages = new BloqueoPages(driver);
+        this.bloqueoPages.navegarBusqueda();
+        this.bloqueoPages.buscarBloqueoPorFechas(fechaInicio, fechaFin);
+        this.bloqueoPages.buscarBloqueo();
+    }   
+
+
+
+
+
+
+    /**
+     * 🎯 STEP: El usuario selecciona el bloqueo
+     * 
+     * Busca filas con estado Aprobado (#6BCF00) en la tabla
+     * Si no encuentra en la página actual, navega entre páginas
+     * Hace clic en el botón "edit" del primer registro encontrado
+     */
+    @And("^El usuario selecciona el bloqueo$")
+    public void elUsuarioSeleccionaElBloqueo() {
+        try {
+            System.out.println("🎯 ===== EJECUTANDO: El usuario selecciona el bloqueo =====");
+            bloqueoPages.seleccionarBloqueoAprobado();
+            System.out.println("✅ Bloqueo seleccionado exitosamente");
+        } catch (Exception e) {
+            System.err.println("❌ Error al seleccionar el bloqueo: " + e.getMessage());
+            throw new RuntimeException("Fallo al seleccionar el bloqueo", e);
+        }
+    }
+
+    /**
+     * 🎯 STEP: El usuario modifica el bloqueo con asientos
+     * 
+     * Modifica el campo "Asientos adicionales" en el popup
+     * Guarda los cambios y cierra el popup
+     * 
+     * @param asientos Número de asientos adicionales a ingresar
+     */
+    @When("^El usuario modifica el bloqueo con asientos (.*)$")
+    public void elUsuarioModificaElBloqueoConAsientos(String asientos) {
+        try {
+            System.out.println("🎯 ===== EJECUTANDO: El usuario modifica el bloqueo con asientos " + asientos + " =====");
+            bloqueoPages.modificarAsientosDelBloqueo(asientos);
+            System.out.println("✅ Bloqueo modificado exitosamente");
+        } catch (Exception e) {
+            System.err.println("❌ Error al modificar el bloqueo: " + e.getMessage());
+            throw new RuntimeException("Fallo al modificar el bloqueo", e);
+        }
+    }
+
+    /**
+     * 🎯 STEP: El usuario valida que la modificación del bloqueo fue exitosa
+     * 
+     * Busca la fila con N° Solicitud y RecLoc guardados previamente
+     * Valida que el estado cambió a Amarillo (#F6B113 o #FFD414)
+     * Resalta los datos encontrados con JavaScript
+     */
+    @Then("^El usuario valida que la modificacion del bloqueo fue exitosa$")
+    public void elUsuarioValidaQuelaModificacionDelBloqueoFueExitosa() {
+        try {
+            System.out.println("🎯 ===== EJECUTANDO: El usuario valida que la modificación del bloqueo fue exitosa =====");
+            bloqueoPages.validarModificacionBloqueoExitosa();
+            System.out.println("✅✅✅ Validación exitosa: El bloqueo cambió a estado Amarillo (En Revisión)");
+        } catch (Exception e) {
+            System.err.println("❌ Error al validar la modificación: " + e.getMessage());
+            throw new RuntimeException("Fallo en la validación de la modificación", e);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+

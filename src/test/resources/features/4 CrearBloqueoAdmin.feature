@@ -25,4 +25,4 @@ Feature: yo como usuario creo bloqueos como administrador
 
     Examples:
   | emailAdmin                | passwordAdmin   | negocio | solicitante  | operador      | aerolinea | numeroVuelo |  asientos  | clase | origen    |   destino     | fechaInicial | fechaFinal |
-  | jesus.perdomo@avianca.com | calixtoH2017$   | Test3   | Prueba3      | Quasarnautica | AV        | 1632        |     10     |   E   | UIO,Quito | "GPS,Baltra"  | 2026-02-04   | 2026-02-10 |
+  | jesus.perdomo@avianca.com | calixtoH2017$   | Test7   | Prueba7      | Quasarnautica | AV        | 1632        |     10     |   E   | UIO,Quito | "GPS,Baltra"  | 2025-11-19   | 2025-11-25 |
