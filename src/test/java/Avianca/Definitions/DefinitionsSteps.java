@@ -388,6 +388,7 @@ public class DefinitionsSteps {
         }
     }
 
+    
     /**
      * 🎯 STEP: El usuario valida que la modificación del bloqueo fue exitosa
      * 
@@ -408,8 +409,44 @@ public class DefinitionsSteps {
     }
 
 
+    /**
+     * 🎯 STEP: El usuario modifica el bloqueo con asientos
+     * 
+     * Modifica el campo "Liberar asientos" en el popup
+     * Guarda los cambios y cierra el popup
+     * 
+     * @param asientos Número de asientos a restar
+     */
+    @When("^El usuario modifica al restar (.*) asientos del bloqueo$")
+    public void elUsuarioRestarAsientosDelBloqueo(String asientos) {
+        try {
+            System.out.println("🎯 ===== EJECUTANDO: El usuario modifica el bloqueo al restar " + asientos + " asientos =====");
+            bloqueoPages.restarAsientosDelBloqueo(asientos);
+            System.out.println("✅ Bloqueo resto asientos exitosamente");
+        } catch (Exception e) {
+            System.err.println("❌ Error al restar asientos del bloqueo: " + e.getMessage());
+            throw new RuntimeException("Fallo al restar asientos del bloqueo", e);
+        }
+    }
 
-
+        /**
+     * 🎯 STEP: El usuario valida que la modificación del bloqueo fue exitosa
+     * 
+     * Busca la fila con N° Solicitud y RecLoc guardados previamente
+     * Valida que el estado cambió a Amarillo (#F6B113 o #FFD414)
+     * Resalta los datos encontrados con JavaScript
+     */
+    @Then("^El usuario valida que se restaron asientos del bloqueo fue exitoso$")
+    public void elUsuarioValidaQueLaReduccionDelBloqueoFueExitosa() {
+        try {
+            System.out.println("🎯 ===== EJECUTANDO: El usuario valida que la modificación del bloqueo fue exitosa =====");
+            bloqueoPages.validarReduccionBloqueoExitosa();
+            System.out.println("✅✅✅ Validación exitosa: El bloqueo cambió a estado Amarillo (En Revisión)");
+        } catch (Exception e) {
+            System.err.println("❌ Error al validar la modificación: " + e.getMessage());
+            throw new RuntimeException("Fallo en la validación de la modificación", e);
+        }
+    }
 
 
 

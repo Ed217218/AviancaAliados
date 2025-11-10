@@ -764,6 +764,60 @@ public class ButtonBloqueoPages {
             }
         }
 
+
+
+
+/**
+ * 🔧 MÉTODO PÚBLICO: Ingresa valor en el campo "Liberar asientos"
+ * 
+ * @param asientos Valor a ingresar en el campo
+ */
+public void ingresarLiberarAsientos(String asientos) {
+    By[] localizadores = {
+        By.xpath("//input[@name='libAsientos']"),
+        By.xpath("//input[@formcontrolname='libAsientos']"),
+        By.xpath("//input[@placeholder='Liberar asientos']"),
+        By.id("mat-input-40"),
+        By.xpath("//mat-label[text()='Liberar asientos']/ancestor::mat-form-field//input"),
+        By.xpath("//input[@maxlength='2' and @name='libAsientos']"),
+        By.cssSelector("input[name='libAsientos']"),
+        By.xpath("//mat-form-field//input[@formcontrolname='libAsientos' and @required]")
+    };
+    
+    try {
+        WebElement campo = elementFinder.encontrarElemento(localizadores);
+        if (campo != null) {
+            System.out.println("📝 Ingresando valor en 'Liberar asientos': " + asientos);
+            elementInteractions.scrollToElement(campo);
+            resaltador.resaltarElemento(campo, 1500);
+            campo.clear();
+            campo.sendKeys(asientos);
+            System.out.println("✅ Valor ingresado correctamente en 'Liberar asientos'");
+        } else {
+            throw new RuntimeException("❌ No se encontró el campo 'Liberar asientos'");
+        }
+    } catch (Exception e) {
+        System.err.println("❌ Error al ingresar liberar asientos: " + e.getMessage());
+        throw new RuntimeException("Fallo al ingresar liberar asientos", e);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * 🔧 MÉTODO PÚBLICO: Guarda los cambios en el popup
  */
@@ -859,6 +913,57 @@ public class ButtonBloqueoPages {
             }
             return false;
         }
+
+
+
+
+        /**
+ * 🔧 MÉTODO PÚBLICO: Valida que la fila tiene color azul (#14D1FF)
+ * 
+ * @param nSolicitud N° de Solicitud a buscar
+ * @param recLoc RecLoc a buscar
+ * @return true si encuentra la fila con color azul, false en caso contrario
+ */
+        public boolean validarFilaConColorAzul(String nSolicitud, String recLoc) {
+            By[] localizadores = {
+                By.xpath("//mat-row[.//mat-cell[text()='" + nSolicitud + "'] and .//mat-cell//p[contains(text(), '" + recLoc + "')] and .//mat-card[@style='background-color: #14D1FF;']]"),
+                By.xpath("//mat-row[.//mat-cell[contains(text(), '" + nSolicitud + "')] and .//mat-cell[contains(., '" + recLoc + "')] and .//mat-card[contains(@style, '14D1FF')]]"),
+                By.xpath("//mat-row[contains(., '" + nSolicitud + "') and contains(., '" + recLoc + "') and .//mat-card[contains(@style, '#14D1FF')]]"),
+                By.xpath("//mat-row[.//mat-cell[text()='" + nSolicitud + "'] and .//mat-cell//p[contains(text(), '" + recLoc + "')] and .//mat-card[contains(@style, 'background-color: #14D1FF')]]")
+            };
+            
+            try {
+                WebElement fila = elementFinder.encontrarElemento(localizadores);
+                if (fila != null) {
+                    System.out.println("✅✅✅ ¡ÉXITO! Fila encontrada con estado Azul (#14D1FF)");
+                    elementInteractions.scrollToElement(fila);
+                    resaltador.resaltarConParpadeo(fila, 3);
+                    
+                    // Resaltar N° Solicitud y RecLoc específicamente
+                    try {
+                        WebElement celdaSolicitud = fila.findElement(By.xpath(".//mat-cell[contains(@class, 'mat-column-nRequest')]"));
+                        WebElement celdaRecLoc = fila.findElement(By.xpath(".//mat-cell[contains(@class, 'mat-column-RecLoc')]"));
+                        
+                        resaltador.resaltarElemento(celdaSolicitud, 3000);
+                        resaltador.resaltarElemento(celdaRecLoc, 3000);
+                        
+                        System.out.println("🎉 N° Solicitud y RecLoc resaltados con éxito");
+                    } catch (Exception e) {
+                        System.err.println("⚠️ No se pudieron resaltar las celdas individuales");
+                    }
+                    
+                    return true;
+                }
+            } catch (Exception e) {
+                System.err.println("❌ No se encontró la fila con color azul");
+            }
+            return false;
+        }
+
+
+
+
+
 
 
 

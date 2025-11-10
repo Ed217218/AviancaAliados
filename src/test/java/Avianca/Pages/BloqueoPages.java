@@ -263,41 +263,186 @@ public class BloqueoPages {
             }
         }
 
+
+
+
+
+/**
+ * 🎯 MÉTODO PÚBLICO: Restar los asientos adicionales del bloqueo
+ * 
+ * Este método:
+ * - Ingresa el nuevo valor en "Liberar asientos"
+ * - Guarda los cambios
+ * - Cierra el popup
+ * 
+ * @param asientos Número de asientos adicionales a ingresar
+ */
+        public void restarAsientosDelBloqueo(String asientos) {
+            try {
+                System.out.println("📝 ====== INICIANDO RESTA DE ASIENTOS ======");
+                
+                // PASO 1: Ingresar nuevo valor en "Liberar asientos"
+                buttonBloqueoPages.ingresarLiberarAsientos(asientos);
+                
+                // PASO 2: Guardar cambios
+                buttonBloqueoPages.guardarCambiosBloqueo();
+                
+                // PASO 3: Cerrar popup
+                buttonBloqueoPages.cerrarPopupEdicion();
+                
+                System.out.println("✅ ====== RESTA DE ASIENTOS COMPLETADA ======");
+                
+            } catch (Exception e) {
+                System.err.println("❌ Error al restar asientos del bloqueo: " + e.getMessage());
+                throw new RuntimeException("Fallo al restar asientos del bloqueo", e);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * 🎯 MÉTODO PÚBLICO: Valida que la modificación del bloqueo fue exitosa
  * 
  * Este método:
  * - Busca la fila con N° Solicitud y RecLoc guardados
+ * - Navega entre páginas si es necesario
  * - Valida que el estado cambió a Amarillo (#F6B113 o #FFD414)
  * - Resalta los datos encontrados con JavaScript
  */
-        public void validarModificacionBloqueoExitosa() {
-            try {
-                System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE MODIFICACIÓN ======");
+public void validarModificacionBloqueoExitosa() {
+    try {
+        System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE MODIFICACIÓN ======");
+        
+        if (nSolicitudGuardado == null || recLocGuardado == null) {
+            throw new RuntimeException("❌ No hay datos guardados para validar. Ejecuta primero 'seleccionarBloqueoAprobado()'");
+        }
+        
+        System.out.println("📋 Buscando fila con N° Solicitud: " + nSolicitudGuardado + " y RecLoc: " + recLocGuardado);
+        
+        // Esperar actualización de la tabla
+        Thread.sleep(3000);
+        
+        // ⭐ PASO 1: Buscar en la página actual
+        boolean validacionExitosa = buttonBloqueoPages.validarFilaConColorAmarillo(nSolicitudGuardado, recLocGuardado);
+        int paginaActual = 1;
+        final int MAX_PAGINAS = 20;
+        
+        // ⭐ PASO 2: Si no encuentra, navegar entre páginas
+        while (!validacionExitosa && paginaActual <= MAX_PAGINAS) {
+            System.out.println("⚠️ No se encontró el registro con estado Amarillo en página " + paginaActual);
+            System.out.println("🔄 Navegando a la siguiente página...");
+            
+            boolean navegacionExitosa = buttonBloqueoPages.navegarSiguientePagina();
+            if (navegacionExitosa) {
+                Thread.sleep(3000); // Esperar carga de la nueva página
+                paginaActual++;
                 
-                if (nSolicitudGuardado == null || recLocGuardado == null) {
-                    throw new RuntimeException("❌ No hay datos guardados para validar. Ejecuta primero 'seleccionarBloqueoAprobado()'");
-                }
-                
-                System.out.println("📋 Buscando fila con N° Solicitud: " + nSolicitudGuardado + " y RecLoc: " + recLocGuardado);
-                
-                // Esperar actualización de la tabla
-                Thread.sleep(3000);
-                
-                // Buscar y validar la fila con color amarillo
-                boolean validacionExitosa = buttonBloqueoPages.validarFilaConColorAmarillo(nSolicitudGuardado, recLocGuardado);
+                // 🔍 VOLVER A BUSCAR EN LA NUEVA PÁGINA
+                validacionExitosa = buttonBloqueoPages.validarFilaConColorAmarillo(nSolicitudGuardado, recLocGuardado);
                 
                 if (validacionExitosa) {
-                    System.out.println("✅✅✅ ====== VALIDACIÓN EXITOSA: ESTADO CAMBIÓ A AMARILLO ======");
-                } else {
-                    throw new RuntimeException("❌ No se encontró la fila con estado Amarillo (#F6B113 o #FFD414)");
+                    System.out.println("✅ Registro encontrado en página " + paginaActual);
+                    break;
                 }
-                
-            } catch (Exception e) {
-                System.err.println("❌ Error al validar modificación: " + e.getMessage());
-                throw new RuntimeException("Fallo en la validación de la modificación", e);
+            } else {
+                System.out.println("⚠️ No hay más páginas disponibles");
+                break;
             }
         }
+        
+        // ⭐ PASO 3: Validar resultado final
+        if (validacionExitosa) {
+            System.out.println("✅✅✅ ====== VALIDACIÓN EXITOSA: ESTADO CAMBIÓ A AMARILLO ======");
+            System.out.println("📄 Registro encontrado en página: " + paginaActual);
+        } else {
+            throw new RuntimeException("❌ No se encontró la fila con estado Amarillo (#F6B113 o #FFD414) en " + paginaActual + " páginas revisadas");
+        }
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al validar modificación: " + e.getMessage());
+        throw new RuntimeException("Fallo en la validación de la modificación", e);
+    }
+}
+
+
+
+/**
+ * 🎯 MÉTODO PÚBLICO: Valida que la reducción del bloqueo fue exitosa
+ * 
+ * Este método:
+ * - Busca la fila con N° Solicitud y RecLoc guardados
+ * - Navega entre páginas si es necesario
+ * - Valida que el estado cambió a Azul (#14D1FF)
+ * - Resalta los datos encontrados con JavaScript
+ */
+public void validarReduccionBloqueoExitosa() {
+    try {
+        System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE REDUCCIÓN ======");
+        
+        if (nSolicitudGuardado == null || recLocGuardado == null) {
+            throw new RuntimeException("❌ No hay datos guardados para validar. Ejecuta primero 'seleccionarBloqueoAprobado()'");
+        }
+        
+        System.out.println("📋 Buscando fila con N° Solicitud: " + nSolicitudGuardado + " y RecLoc: " + recLocGuardado);
+        
+        // Esperar actualización de la tabla
+        Thread.sleep(3000);
+        
+        // ⭐ PASO 1: Buscar en la página actual
+        boolean validacionExitosa = buttonBloqueoPages.validarFilaConColorAzul(nSolicitudGuardado, recLocGuardado);
+        int paginaActual = 1;
+        final int MAX_PAGINAS = 20;
+        
+        // ⭐ PASO 2: Si no encuentra, navegar entre páginas
+        while (!validacionExitosa && paginaActual <= MAX_PAGINAS) {
+            System.out.println("⚠️ No se encontró el registro con estado Azul en página " + paginaActual);
+            System.out.println("🔄 Navegando a la siguiente página...");
+            
+            boolean navegacionExitosa = buttonBloqueoPages.navegarSiguientePagina();
+            if (navegacionExitosa) {
+                Thread.sleep(3000); // Esperar carga de la nueva página
+                paginaActual++;
+                
+                // 🔍 VOLVER A BUSCAR EN LA NUEVA PÁGINA
+                validacionExitosa = buttonBloqueoPages.validarFilaConColorAzul(nSolicitudGuardado, recLocGuardado);
+                
+                if (validacionExitosa) {
+                    System.out.println("✅ Registro encontrado en página " + paginaActual);
+                    break;
+                }
+            } else {
+                System.out.println("⚠️ No hay más páginas disponibles");
+                break;
+            }
+        }
+        
+        // ⭐ PASO 3: Validar resultado final
+        if (validacionExitosa) {
+            System.out.println("✅✅✅ ====== VALIDACIÓN EXITOSA: ESTADO CAMBIÓ A AZUL ======");
+            System.out.println("📄 Registro encontrado en página: " + paginaActual);
+        } else {
+            throw new RuntimeException("❌ No se encontró la fila con estado Azul (#14D1FF) en " + paginaActual + " páginas revisadas");
+        }
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al validar reducción: " + e.getMessage());
+        throw new RuntimeException("Fallo en la validación de la reducción", e);
+    }
+}
+
+
+
+
+
 
 
 
