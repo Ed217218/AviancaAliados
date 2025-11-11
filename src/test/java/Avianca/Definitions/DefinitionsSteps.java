@@ -449,6 +449,13 @@ public class DefinitionsSteps {
     }
 
 
+    @And("^El usuario navega a  Administracion de Bloqueos y Bloqueos Creados$")
+    public void elUsuarioNavegaAAdministracionDeBloqueosYBloqueosCreados() {
+        this.bloqueoPages = new BloqueoPages(driver);
+        this.bloqueoPages.navagarAdminBloqueos();
+        this.bloqueoPages.navegarBloqueosCreados();
+
+    }
 
 
 

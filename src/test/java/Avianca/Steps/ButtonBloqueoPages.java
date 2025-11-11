@@ -18,6 +18,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.time.LocalDate;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.function.Supplier;
+
+
+
+
 //import Avianca.Utils.ApiErrorCapture;
 import Avianca.Utils.ElementInteractions;
 import Avianca.Utils.JavascriptResaltaHtml;
@@ -43,44 +50,160 @@ public class ButtonBloqueoPages {
 
 
 
-    // ===== BOTONES DE ACCIÓN =====
+
     
-    // ===== Xpath / Localizadores =====
+    // ===== Xpath / Localizadores (MENUS / SUB-MENUS) =====
 /**
- * 🔧 MÉTODO AUXILIAR: Encuentra "Administración de Bloqueos" con múltiples estrategias
+ * 🔧 MÉTODO AUXILIAR: Encuentra "Administración de Bloqueos" (menú principal)
  */
-        private WebElement encontrarAdministracionDeBloqueos() {
-            By[] localizadores = {
-                By.id("horizontal-menu-item-104"),
-                By.xpath("//span[@class='horizontal-menu-title' and text()='Administracion de Bloqueos']"),
-                By.xpath("//span[text()='Administracion de Bloqueos']"),
-                By.xpath("//*[contains(text(), 'Administracion de Bloqueos')]"),
-                By.xpath("//a[@id='horizontal-menu-item-104']//span[@class='horizontal-menu-title']"),
-                By.xpath("//mat-icon[text()='dashboard']/following-sibling::span//span[text()='Administracion de Bloqueos']"),
-                By.cssSelector("a#horizontal-menu-item-104"),
-                By.xpath("//a[@id='horizontal-menu-item-104' and following-sibling::div[@id='horizontal-sub-menu-104']]")
-            };
-            return elementFinder.encontrarElemento(localizadores);
-        }
+private WebElement encontrarAdministracionDeBloqueos() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-104"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Administracion de Bloqueos']"),
+        By.xpath("//span[text()='Administracion de Bloqueos']"),
+        By.xpath("//*[contains(text(), 'Administracion de Bloqueos')]"),
+        By.xpath("//a[@id='horizontal-menu-item-104']//span[@class='horizontal-menu-title']"),
+        By.xpath("//mat-icon[text()='dashboard']/following-sibling::span//span[text()='Administracion de Bloqueos']"),
+        By.cssSelector("a#horizontal-menu-item-104"),
+        By.xpath("//a[@id='horizontal-menu-item-104' and following-sibling::div[@id='horizontal-sub-menu-104']]"),
+        By.xpath("//div[@class='horizontal-menu-item w-100 ng-star-inserted']//a[@id='horizontal-menu-item-104']")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
 
 /**
- * 🔧 MÉTODO AUXILIAR: Encuentra submenú "Bloqueos" con múltiples estrategias
+ * 🔧 MÉTODO AUXILIAR: Encuentra submenú "Bandeja de Solicitudes"
  */
-        private WebElement encontrarBloqueos() {
-            By[] localizadores = {
-                By.id("horizontal-menu-item-105"),
-                By.xpath("//span[@class='horizontal-menu-title' and text()='Bloqueos']"),
-                By.xpath("//span[text()='Bloqueos']"),
-                By.xpath("//*[contains(text(), 'Bloqueos')]"),
-                By.xpath("//a[@id='horizontal-menu-item-105']//span[@class='horizontal-menu-title']"),
-                By.xpath("//a[@href='/TopEditBae/Index']"),
-                By.xpath("//a[@href='/TopEditBae/Index']//span[text()='Bloqueos']"),
-                By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-105']"),
-                By.cssSelector("a#horizontal-menu-item-105"),
-                By.xpath("//a[@id='horizontal-menu-item-105' and contains(@class, 'active-link')]")
-            };
-            return elementFinder.encontrarElemento(localizadores);
-        }
+private WebElement encontrarBandejaDeSolicitudes() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-82"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Bandeja de Solicitudes']"),
+        By.xpath("//span[text()='Bandeja de Solicitudes']"),
+        By.xpath("//a[@id='horizontal-menu-item-82']//span[@class='horizontal-menu-title']"),
+        By.xpath("//a[@href='/Inbox/Index']"),
+        By.xpath("//a[@href='/Inbox/Index']//span[text()='Bandeja de Solicitudes']"),
+        By.cssSelector("a#horizontal-menu-item-82"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-82']"),
+        By.xpath("//a[@id='horizontal-menu-item-82' and @routerlinkactive='active-link']")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra submenú "Creación de Bloqueos"
+ */
+private WebElement encontrarCreacionDeBloqueos() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-41"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Creacion de Bloqueos']"),
+        By.xpath("//span[text()='Creacion de Bloqueos']"),
+        By.xpath("//a[@id='horizontal-menu-item-41']//span[@class='horizontal-menu-title']"),
+        By.xpath("//a[@href='/BlockFlights/Index']"),
+        By.xpath("//a[@href='/BlockFlights/Index']//span[text()='Creacion de Bloqueos']"),
+        By.cssSelector("a#horizontal-menu-item-41"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-41']"),
+        By.xpath("//a[@id='horizontal-menu-item-41' and @routerlinkactive='active-link']")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra submenú "Bloqueos Creados"
+ */
+private WebElement encontrarBloqueosCreados() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-10"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Bloqueos Creados']"),
+        By.xpath("//span[text()='Bloqueos Creados']"),
+        By.xpath("//a[@id='horizontal-menu-item-10']//span[@class='horizontal-menu-title']"),
+        By.xpath("//a[@href='/AnEditBae/Index']"),
+        By.xpath("//a[@href='/AnEditBae/Index']//span[text()='Bloqueos Creados']"),
+        By.cssSelector("a#horizontal-menu-item-10"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-10']"),
+        By.xpath("//a[@id='horizontal-menu-item-10' and @routerlinkactive='active-link']"),
+        By.xpath("//a[@id='horizontal-menu-item-10' and contains(@class, 'active-link')]")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra submenú "Consulta de Bloqueos"
+ */
+private WebElement encontrarConsultaDeBloqueos() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-61"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Consulta de Bloqueos']"),
+        By.xpath("//span[text()='Consulta de Bloqueos']"),
+        By.xpath("//a[@id='horizontal-menu-item-61']//span[@class='horizontal-menu-title']"),
+        By.xpath("//a[@href='/QueryBlocks/Index']"),
+        By.xpath("//a[@href='/QueryBlocks/Index']//span[text()='Consulta de Bloqueos']"),
+        By.cssSelector("a#horizontal-menu-item-61"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-61']"),
+        By.xpath("//a[@id='horizontal-menu-item-61' and @routerlinkactive='active-link']")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra submenú "Bloqueos" (ya implementado)
+ */
+private WebElement encontrarBloqueos() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-105"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Bloqueos']"),
+        By.xpath("//span[text()='Bloqueos']"),
+        By.xpath("//*[contains(text(), 'Bloqueos')]"),
+        By.xpath("//a[@id='horizontal-menu-item-105']//span[@class='horizontal-menu-title']"),
+        By.xpath("//a[@href='/TopEditBae/Index']"),
+        By.xpath("//a[@href='/TopEditBae/Index']//span[text()='Bloqueos']"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-105']"),
+        By.cssSelector("a#horizontal-menu-item-105"),
+        By.xpath("//a[@id='horizontal-menu-item-105' and contains(@class, 'active-link')]")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra submenú "Migración de bloqueos"
+ */
+private WebElement encontrarMigracionDeBloqueos() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-117"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Migración de bloqueos']"),
+        By.xpath("//span[text()='Migración de bloqueos']"),
+        By.xpath("//a[@id='horizontal-menu-item-117']//span[@class='horizontal-menu-title']"),
+        By.xpath("//a[@href='/Migration/Index']"),
+        By.xpath("//a[@href='/Migration/Index']//span[text()='Migración de bloqueos']"),
+        By.cssSelector("a#horizontal-menu-item-117"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-117']"),
+        By.xpath("//a[@id='horizontal-menu-item-117' and @routerlinkactive='active-link']")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Encuentra submenú "Modificación Masiva de Negos"
+ */
+private WebElement encontrarModificacionMasivaDeNegos() {
+    By[] localizadores = {
+        By.id("horizontal-menu-item-132"),
+        By.xpath("//span[@class='horizontal-menu-title' and text()='Modificación Masiva de Negos']"),
+        By.xpath("//span[text()='Modificación Masiva de Negos']"),
+        By.xpath("//a[@id='horizontal-menu-item-132']//span[@class='horizontal-menu-title']"),
+        By.xpath("//a[@href='/ModMultipleNegos/Index']"),
+        By.xpath("//a[@href='/ModMultipleNegos/Index']//span[text()='Modificación Masiva de Negos']"),
+        By.cssSelector("a#horizontal-menu-item-132"),
+        By.xpath("//div[@id='horizontal-sub-menu-104']//a[@id='horizontal-menu-item-132']"),
+        By.xpath("//a[@id='horizontal-menu-item-132' and @routerlinkactive='active-link']")
+    };
+    return elementFinder.encontrarElemento(localizadores);
+}
+
+
+
+
+// ===== BOTONES DE ACCIÓN =====
+
 
 /**
  * 🔧 MÉTODO AUXILIAR: Encuentra el tab "Búsqueda" con múltiples estrategias
@@ -153,13 +276,12 @@ public class ButtonBloqueoPages {
 
 
 
-        public void clickAdminBloqueos() {
-
-            try {            
-                System.out.println("🔍 Buscando elemento 'Administración de Bloqueos'...");
-                WebElement elemento = encontrarAdministracionDeBloqueos();
-                wait.until(ExpectedConditions.visibilityOf(elemento));
-                wait.until(ExpectedConditions.elementToBeClickable(elemento));
+            public void clickAdminBloqueos() {
+                try {            
+                    System.out.println("🔍 Buscando elemento 'Administración de Bloqueos'...");
+                    WebElement elemento = encontrarAdministracionDeBloqueos();
+                    wait.until(ExpectedConditions.visibilityOf(elemento));
+                    wait.until(ExpectedConditions.elementToBeClickable(elemento));
 
                     if (elemento != null) {
                         System.out.println("🔍 Elemento encontrado: " + elemento.getText());
@@ -170,7 +292,6 @@ public class ButtonBloqueoPages {
                         
                         // ✅ PASO 2: Hacer scroll hasta el elemento
                         elementInteractions.scrollToElement(elemento);
-                        //resaltador.resaltarElemento(elemento);
                         
                         // ✅ PASO 3: Esperar que sea clickeable
                         wait.until(ExpectedConditions.elementToBeClickable(elemento));
@@ -179,31 +300,140 @@ public class ButtonBloqueoPages {
                         realizarClicConMultiplesEstrategias(elemento);
                         
                         System.out.println("✅ Clic realizado en 'Administración de Bloqueos'");
-            
+                
                         // ✅ PASO 5: Esperar a que el submenú se despliegue
                         Thread.sleep(3000);
 
-                        // ✅ PASO 6: Verificar que el submenú esté visible
-                         WebElement subMenu = encontrarBloqueos();
-                        if (subMenu.isDisplayed()) {
-                            System.out.println("✅ Submenú 'Bloqueos' visible");
-                            System.out.println("🔍 Elemento encontrado: " + subMenu.getText());
-                            resaltador.resaltarElemento(subMenu, 2000); // 2 segundos en verde
-                        } else {
-                            System.out.println("❌ Submenú 'Bloqueos' no visible");
-                        }
+                        // ✅ PASO 6: Verificar que TODOS los submenús estén visibles (HÍBRIDO)
+                        verificarTodosLosSubMenusHibrida();
 
                     } else {
-                           throw new RuntimeException("❌ No se encontró el elemento 'Administración de Bloqueos'");
+                        throw new RuntimeException("❌ No se encontró el elemento 'Administración de Bloqueos'");
                     }
 
-                // Realizar acción con el elemento encontrado
-            } catch (Exception e) {
-                System.err.println("❌ Error en clic sobre 'Administración de Bloqueos': " + e.getMessage());
-                throw new RuntimeException("Fallo al interactuar con 'Administración de Bloqueos'", e);
+                } catch (Exception e) {
+                    System.err.println("❌ Error en clic sobre 'Administración de Bloqueos': " + e.getMessage());
+                    throw new RuntimeException("Fallo al interactuar con 'Administración de Bloqueos'", e);
+                }
             }
+
+
+    
             
-        }
+
+
+                /**
+                 * 🔧 MÉTODO AUXILIAR: Verifica que todos los submenús estén visibles (HÍBRIDO)
+                 * 
+                 * VENTAJAS DE ESTE ENFOQUE:
+                 * - ✅ No requiere reflexión (más seguro)
+                 * - ✅ El IDE valida los métodos en tiempo de compilación
+                 * - ✅ Escalable: solo agregar una línea al mapa
+                 * - ✅ Legible y profesional
+                 * - ✅ Usa programación funcional (Supplier<T>)
+                 * 
+                 * @throws RuntimeException si ningún submenú está visible
+                 */
+                private void verificarTodosLosSubMenusHibrida() {
+                    System.out.println("🔍 ====== INICIANDO VERIFICACIÓN HÍBRIDA DE SUBMENÚS ======");
+                    
+                    // ⭐ MAPA de métodos usando referencias de método (method references)
+                    // LinkedHashMap mantiene el orden de inserción
+                    Map<String, Supplier<WebElement>> metodosSubMenu = new LinkedHashMap<>();
+                    metodosSubMenu.put("Bandeja de Solicitudes", this::encontrarBandejaDeSolicitudes);
+                    metodosSubMenu.put("Creación de Bloqueos", this::encontrarCreacionDeBloqueos);
+                    metodosSubMenu.put("Bloqueos Creados", this::encontrarBloqueosCreados);
+                    metodosSubMenu.put("Consulta de Bloqueos", this::encontrarConsultaDeBloqueos);
+                    metodosSubMenu.put("Bloqueos", this::encontrarBloqueos);
+                    metodosSubMenu.put("Migración de bloqueos", this::encontrarMigracionDeBloqueos);
+                    metodosSubMenu.put("Modificación Masiva de Negos", this::encontrarModificacionMasivaDeNegos);
+                    
+                    int subMenusVisibles = 0;
+                    int total = metodosSubMenu.size();
+                    int contador = 0;
+                    
+                    // ✅ Iterar sobre cada submenú
+                    for (Map.Entry<String, Supplier<WebElement>> entry : metodosSubMenu.entrySet()) {
+                        contador++;
+                        String nombreSubMenu = entry.getKey();
+                        Supplier<WebElement> metodoProveedor = entry.getValue();
+                        
+                        try {
+                            // ⭐ Ejecutar el método dinámicamente usando .get()
+                            WebElement elemento = metodoProveedor.get();
+                            
+                            // Validar si el elemento está visible
+                            if (elemento != null && elemento.isDisplayed()) {
+                                System.out.println("✅ [" + contador + "/" + total + "] Submenú '" + nombreSubMenu + "' visible");
+                                System.out.println("   📝 Texto: " + elemento.getText());
+                                
+                                // Resaltar elemento por 800ms
+                                try {
+                                    resaltador.resaltarElemento(elemento, 800);
+                                } catch (Exception e) {
+                                    System.err.println("   ⚠️ No se pudo resaltar: " + e.getMessage());
+                                }
+                                
+                                subMenusVisibles++;
+                            } else {
+                                System.out.println("❌ [" + contador + "/" + total + "] Submenú '" + nombreSubMenu + "' NO visible");
+                            }
+                            
+                        } catch (Exception e) {
+                            System.err.println("❌ [" + contador + "/" + total + "] Error con '" + nombreSubMenu + "': " + e.getMessage());
+                        }
+                    }
+                    
+                    // ✅ Imprimir resumen final
+                    imprimirResumenValidacion(subMenusVisibles, total);
+                }
+
+                /**
+                 * 🔧 MÉTODO AUXILIAR: Imprime el resumen de validación de submenús
+                 * 
+                 * @param visibles Cantidad de submenús visibles
+                 * @param total Cantidad total de submenús
+                 * @throws RuntimeException si ningún submenú está visible
+                 */
+                private void imprimirResumenValidacion(int visibles, int total) {
+                    System.out.println("========================================");
+                    System.out.println("📊 RESUMEN DE VERIFICACIÓN:");
+                    System.out.println("   Submenús visibles: " + visibles + "/" + total);
+                    
+                    // Calcular porcentaje
+                    double porcentaje = (visibles * 100.0) / total;
+                    System.out.println("   Porcentaje: " + String.format("%.2f", porcentaje) + "%");
+                    
+                    // Evaluación final
+                    if (visibles == total) {
+                        System.out.println("✅✅✅ TODOS LOS SUBMENÚS ESTÁN VISIBLES");
+                        System.out.println("🎉 Validación 100% exitosa");
+                    } else if (visibles >= (total * 0.7)) {
+                        System.out.println("⚠️ MAYORÍA DE SUBMENÚS VISIBLES (" + visibles + "/" + total + ")");
+                        System.out.println("⚠️ Continúa con precaución");
+                    } else if (visibles > 0) {
+                        System.out.println("⚠️ SOLO " + visibles + " DE " + total + " SUBMENÚS VISIBLES");
+                        System.out.println("❌ Validación parcial - verifica la configuración");
+                    } else {
+                        System.out.println("❌ NINGÚN SUBMENÚ VISIBLE");
+                        System.out.println("❌ El menú no se desplegó correctamente");
+                        throw new RuntimeException("❌ No se desplegó el submenú correctamente");
+                    }
+                    
+                    System.out.println("====== FIN VERIFICACIÓN DE SUBMENÚS ======\n");
+                }
+
+
+
+
+
+            
+
+
+
+
+
+
 
        public void clickBloqueos() {
             try {            
@@ -241,6 +471,51 @@ public class ButtonBloqueoPages {
                 throw new RuntimeException("Fallo al interactuar con 'Bloqueos'", e);
             }
        }
+
+
+
+
+
+
+       public void clickBloqueosCreados() {
+            try {            
+                System.out.println("🔍 Buscando elemento 'Bloqueos Creados'...");
+                WebElement elemento = encontrarBloqueosCreados();
+                wait.until(ExpectedConditions.visibilityOf(elemento));
+                wait.until(ExpectedConditions.elementToBeClickable(elemento));
+
+                    if (elemento != null) {
+                        System.out.println("🔍 Elemento encontrado: " + elemento.getText());
+                        System.out.println("✅ Elemento encontrado. Realizando acción...");
+                        
+                        // ✅ PASO 1: RESALTAR EL ELEMENTO EN Azul
+                        resaltador.resaltarElemento(elemento, 2000); // 2 segundos en azul 
+                        
+                        // ✅ PASO 2: Hacer scroll hasta el elemento
+                        elementInteractions.scrollToElement(elemento);
+                        //resaltador.resaltarElemento(elemento);
+                        
+                        // ✅ PASO 3: Esperar que sea clickeable
+                        wait.until(ExpectedConditions.elementToBeClickable(elemento));
+                        
+                        // ✅ PASO 4: Realizar el clic
+                        realizarClicConMultiplesEstrategias(elemento);
+                        
+                        System.out.println("✅ Clic realizado en 'Bloqueos Creados'");
+            
+                    } else {
+                           throw new RuntimeException("❌ No se encontró el elemento 'Bloqueos'");
+                    }
+
+                // Realizar acción con el elemento encontrado
+            } catch (Exception e) {
+                System.err.println("❌ Error en clic sobre 'Bloqueos Creados': " + e.getMessage());
+                throw new RuntimeException("Fallo al interactuar con 'Bloqueos Creados'", e);
+            }
+       }
+
+
+
 
 
 /**

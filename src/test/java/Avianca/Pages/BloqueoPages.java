@@ -70,7 +70,7 @@ public class BloqueoPages {
     private static String nSolicitudGuardado = null;
     private static String recLocGuardado = null;
 
-
+/// ===== MÉTODOS PARA MENUS =====
 
     public void navagarAdminBloqueos() {
         this.buttonBloqueoPages.clickAdminBloqueos();
@@ -79,6 +79,13 @@ public class BloqueoPages {
     public void navegarBloqueos() {
         this.buttonBloqueoPages.clickBloqueos();
     }
+
+    public void navegarBloqueosCreados() {
+        this.buttonBloqueoPages.clickBloqueosCreados();
+    }
+
+
+/// ===== MÉTODOS BOTONES O ELEMENTOS =====
 
     public void navegarBusqueda() {
         this.buttonBloqueoPages.clickTabBusqueda();  

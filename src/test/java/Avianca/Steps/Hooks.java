@@ -17,6 +17,14 @@ public class Hooks {
     
     @Before
     public void setUp(Scenario scenario) {
+        // Configurar encoding UTF-8 para mostrar emojis en consola Windows
+        try {
+            System.setOut(new java.io.PrintStream(System.out, true, "UTF-8"));
+            System.setErr(new java.io.PrintStream(System.err, true, "UTF-8"));
+        } catch (Exception e) {
+            // Si falla, continuar sin UTF-8
+        }
+        
         System.out.println("════════════════════════════════════════════════════");
         System.out.println("🚀 INICIANDO ESCENARIO: " + scenario.getName());
         System.out.println("════════════════════════════════════════════════════");

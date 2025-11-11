@@ -12,7 +12,9 @@
     <url>http://www.example.com</url>
 
     <properties>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- cucumber.version se elimina - Serenity maneja la versión de Cucumber automáticamente -->
         <serenity.version>3.9.8</serenity.version> <!-- Última versión compatible con Java 8 -->
         <serenity.maven.version>3.9.8</serenity.maven.version>
