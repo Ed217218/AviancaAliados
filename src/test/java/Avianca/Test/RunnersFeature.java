@@ -27,7 +27,7 @@ import net.serenitybdd.cucumber.CucumberWithSerenity;
     // 🏷️ Tags a ejecutar (MODIFICAR SEGÚN NECESIDAD)
 /* forma de ejecutar mas de una HU */
     // tags = "@HU001 or @HU002 or @HU003", 
-    tags = "@HU004",
+    tags = "@HU007",
     
     // 📊 Reportes adicionales
     plugin = {

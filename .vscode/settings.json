@@ -44,5 +44,33 @@
     // GitLens
     "gitlens.currentLine.enabled": true,
     "gitlens.hovers.currentLine.over": "line",
-    "gitlens.codeLens.enabled": true
+    "gitlens.codeLens.enabled": true,
+
+    // ========== CONFIGURACIÓN UTF-8 PARA EMOJIS ==========
+
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "overrideCommand": true,
+            "path": "pwsh.exe",
+            "icon": "terminal-powershell",
+            "args": ["-NoExit", "-Command", "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8"]
+        }
+    },
+    "terminal.integrated.shellArgs.windows": [
+        "-NoExit",
+        "-Command",
+        "$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding"
+    ]
+
+
+
+
+
+
+
+
+
+
 }
