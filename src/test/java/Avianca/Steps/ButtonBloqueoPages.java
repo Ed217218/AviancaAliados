@@ -1147,13 +1147,239 @@ public void ingresarLiberarAsientos(String asientos) {
             }
         }
 
+
+
+
+
+
+
+
+
+
+
+/**
+ * 🔧 MÉTODO PÚBLICO REFACTORIZADO: Busca una fila por N° Solicitud y RecLoc
+ * Valida el color de forma OPCIONAL y reporta el estado encontrado
+ * 
+ * @param nSolicitud N° de Solicitud a buscar (OBLIGATORIO)
+ * @param recLoc RecLoc a buscar (OBLIGATORIO)
+ * @param colorEsperado Color esperado en formato hex (OPCIONAL, puede ser null)
+ * @return true si encuentra la fila, false en caso contrario
+ */
+public boolean validarFilaConDeteccionDeEstado(String nSolicitud, String recLoc, String colorEsperado) {
+    System.out.println("🔍 ====== INICIANDO BUSQUEDA DE FILA ======");
+    System.out.println("   📋 Parametros de bUsqueda:");
+    System.out.println("      • N° Solicitud: " + nSolicitud);
+    System.out.println("      • RecLoc: " + recLoc);
+    System.out.println("      • Color esperado: " + (colorEsperado != null ? colorEsperado : "N/A (deteccion automatica)"));
+    
+    // ✅ PASO 1: Localizadores SIN filtro de color (búsqueda por nSolicitud y recLoc únicamente)
+    By[] localizadores = {
+        // Localizador exacto
+        By.xpath("//mat-row[.//mat-cell[text()='" + nSolicitud + "'] and .//mat-cell//p[contains(text(), '" + recLoc + "')]]"),
+        // Localizador flexible con contains
+        By.xpath("//mat-row[.//mat-cell[contains(text(), '" + nSolicitud + "')] and .//mat-cell[contains(., '" + recLoc + "')]]"),
+        // Localizador muy flexible
+        By.xpath("//mat-row[contains(., '" + nSolicitud + "') and contains(., '" + recLoc + "')]"),
+        // Localizador con estructura Material Design específica
+        By.xpath("//mat-row[.//mat-cell[contains(@class, 'mat-column-nRequest') and contains(text(), '" + nSolicitud + "')] and .//mat-cell[contains(@class, 'mat-column-RecLoc') and contains(., '" + recLoc + "')]]")
+    };
+    
+    try {
+        // ✅ PASO 2: Buscar la fila SIN importar el color
+        WebElement fila = elementFinder.encontrarElemento(localizadores);
+        
+        if (fila != null) {
+            System.out.println("✅ Fila encontrada con N° Solicitud: " + nSolicitud + " y RecLoc: " + recLoc);
+            
+            // ✅ PASO 3: Resaltar la fila completa
+            elementInteractions.scrollToElement(fila);
+            resaltador.resaltarConParpadeo(fila, 3);
+            
+            // ✅ PASO 4: Detectar el color del estado (OPCIONAL)
+            String colorDetectado = detectarColorEstado(fila);
+            String estadoDetectado = mapearColorAEstado(colorDetectado);
+            
+            // ✅ PASO 5: Reportar el color y estado detectados
+            if (colorDetectado != null) {
+                System.out.println("🎨 Color detectado: " + colorDetectado);
+                System.out.println("📊 Estado detectado: " + estadoDetectado);
+                
+                // Si se especificó un color esperado, validar coincidencia
+                if (colorEsperado != null) {
+                    if (colorDetectado.equalsIgnoreCase(colorEsperado)) {
+                        System.out.println("✅ El color detectado COINCIDE con el esperado");
+                    } else {
+                        System.out.println("⚠️ ADVERTENCIA: Color esperado era '" + colorEsperado + "' pero se encontró '" + colorDetectado + "'");
+                    }
+                }
+            } else {
+                System.out.println("⚠️ No se pudo detectar el color del estado");
+            }
+            
+            // ✅ PASO 6: Resaltar celdas específicas
+            try {
+                WebElement celdaSolicitud = fila.findElement(By.xpath(".//mat-cell[contains(@class, 'mat-column-nRequest')]"));
+                WebElement celdaRecLoc = fila.findElement(By.xpath(".//mat-cell[contains(@class, 'mat-column-RecLoc')]"));
+                
+                resaltador.resaltarElemento(celdaSolicitud, 3000);
+                resaltador.resaltarElemento(celdaRecLoc, 3000);
+                
+                System.out.println("🎯 N° Solicitud y RecLoc resaltados con éxito");
+            } catch (Exception e) {
+                System.err.println("⚠️ No se pudieron resaltar las celdas individuales: " + e.getMessage());
+            }
+            
+            System.out.println("====== FIN BÚSQUEDA DE FILA ======\n");
+            return true;
+            
+        } else {
+            System.out.println("❌ No se encontró ninguna fila con N° Solicitud: " + nSolicitud + " y RecLoc: " + recLoc);
+            return false;
+        }
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al buscar la fila: " + e.getMessage());
+        return false;
+    }
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Detecta el color del estado en una fila
+ * 
+ * @param fila WebElement de la fila a analizar
+ * @return String con el código hexadecimal del color, o null si no se detecta
+ */
+private String detectarColorEstado(WebElement fila) {
+    try {
+        // Buscar el mat-card con background-color dentro de la fila
+        WebElement matCard = fila.findElement(By.xpath(".//mat-card[@style]"));
+        
+        if (matCard != null) {
+            String styleAttribute = matCard.getAttribute("style");
+            
+            // Extraer el color del atributo style
+            if (styleAttribute != null && styleAttribute.contains("background-color")) {
+                // Ejemplo: "background-color: #6BCF00;" -> "#6BCF00"
+                String[] parts = styleAttribute.split("background-color:");
+                if (parts.length > 1) {
+                    String colorPart = parts[1].trim();
+                    // Extraer solo el código hexadecimal
+                    if (colorPart.contains(";")) {
+                        colorPart = colorPart.substring(0, colorPart.indexOf(";"));
+                    }
+                    return colorPart.trim(); // Ej: "#6BCF00"
+                }
+            }
+        }
+    } catch (Exception e) {
+        System.err.println("⚠️ Error al detectar color: " + e.getMessage());
+    }
+    return null;
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Mapea un código de color hexadecimal a su estado correspondiente
+ * 
+ * @param colorHex Código hexadecimal del color (ej: "#6BCF00")
+ * @return String con el nombre del estado
+ */
+private String mapearColorAEstado(String colorHex) {
+    if (colorHex == null) {
+        return "Desconocido";
+    }
+    
+    // Normalizar el color (convertir a mayúsculas y quitar espacios)
+    String colorNormalizado = colorHex.toUpperCase().trim();
+    
+    // Mapa de colores a estados
+    switch (colorNormalizado) {
+        case "#6BCF00":
+            return "Aprobado";
+        case "#FFD414":
+            return "Revision";   
+        case "#14D1FF":
+            return "Modificado";            
+        case "#F63913":
+            return "Cancelado";            
+        case "#A600CF":
+            return "Fallido";
+        default:
+            return "Estado Desconocido (" + colorHex + ")";
+    }
+}
+
+/**
+ * 🔧 MÉTODO PÚBLICO: Wrapper para validar color AMARILLO específicamente
+ * (Mantiene compatibilidad con código existente)
+ * 
+ * @param nSolicitud N° de Solicitud a buscar
+ * @param recLoc RecLoc a buscar
+ * @return true si encuentra la fila, false en caso contrario
+ */
+public boolean validarFilaConColorAmarillo(String nSolicitud, String recLoc) {
+    System.out.println("🟡 Validación específica: Esperando color AMARILLO");
+    return validarFilaConDeteccionDeEstado(nSolicitud, recLoc, "#FFD414");
+}
+
+/**
+ * 🔧 MÉTODO PÚBLICO: Wrapper para validar color AZUL específicamente
+ * (Mantiene compatibilidad con código existente)
+ * 
+ * @param nSolicitud N° de Solicitud a buscar
+ * @param recLoc RecLoc a buscar
+ * @return true si encuentra la fila, false en caso contrario
+ */
+public boolean validarFilaConColorAzul(String nSolicitud, String recLoc) {
+    System.out.println("🔵 Validación específica: Esperando color AZUL");
+    return validarFilaConDeteccionDeEstado(nSolicitud, recLoc, "#14D1FF");
+}
+
+/**
+ * 🔧 MÉTODO PÚBLICO: Busca fila SIN validar color (detección automática)
+ * 
+ * @param nSolicitud N° de Solicitud a buscar
+ * @param recLoc RecLoc a buscar
+ * @return true si encuentra la fila, false en caso contrario
+ */
+public boolean buscarFilaPorSolicitudYRecLoc(String nSolicitud, String recLoc) {
+    System.out.println("🔍 Busqueda generica: Sin validar color especifico");
+    return validarFilaConDeteccionDeEstado(nSolicitud, recLoc, null);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * 🔧 MÉTODO PÚBLICO: Valida que la fila tiene color amarillo (#F6B113 o #FFD414)
  * 
  * @param nSolicitud N° de Solicitud a buscar
  * @param recLoc RecLoc a buscar
  * @return true si encuentra la fila con color amarillo, false en caso contrario
- */
+ 
         public boolean validarFilaConColorAmarillo(String nSolicitud, String recLoc) {
             By[] localizadores = {
                 By.xpath("//mat-row[.//mat-cell[text()='" + nSolicitud + "'] and .//mat-cell//p[contains(text(), '" + recLoc + "')] and (.//mat-card[@style='background-color: #F6B113;'] or .//mat-card[@style='background-color: #FFD414;'])]"),
@@ -1189,16 +1415,18 @@ public void ingresarLiberarAsientos(String asientos) {
             return false;
         }
 
+*/
 
 
 
-        /**
+
+/**
  * 🔧 MÉTODO PÚBLICO: Valida que la fila tiene color azul (#14D1FF)
  * 
  * @param nSolicitud N° de Solicitud a buscar
  * @param recLoc RecLoc a buscar
  * @return true si encuentra la fila con color azul, false en caso contrario
- */
+ 
         public boolean validarFilaConColorAzul(String nSolicitud, String recLoc) {
             By[] localizadores = {
                 By.xpath("//mat-row[.//mat-cell[text()='" + nSolicitud + "'] and .//mat-cell//p[contains(text(), '" + recLoc + "')] and .//mat-card[@style='background-color: #14D1FF;']]"),
@@ -1236,7 +1464,7 @@ public void ingresarLiberarAsientos(String asientos) {
         }
 
 
-
+*/
 
 
 

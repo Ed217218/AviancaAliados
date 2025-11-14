@@ -62,6 +62,9 @@
         "-NoExit",
         "-Command",
         "$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding"
+    ],
+    "projectManager.git.baseFolders": [
+        "D:\\Documentos\\1_Automatizacion_proyectos\\Visual Studio Code\\AviancaAliados"
     ]
 
 

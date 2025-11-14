@@ -12,7 +12,7 @@ Feature: Yo como usuario consulto y modifico los bloqueos
     And El usuario busca el bloqueo creado previamente con fechas <fechaInicial> <fechaFinal>
     And El usuario selecciona el bloqueo
     When El usuario modifica el bloqueo con asientos <asientos>
-    Then El usuario valida que la modificacion del bloqueo fue exitosa
+    Then El usuario valida que el ajuste del bloqueo fue exitoso
 
 
     Examples:

@@ -399,9 +399,9 @@ public class DefinitionsSteps {
     @Then("^El usuario valida que la modificacion del bloqueo fue exitosa$")
     public void elUsuarioValidaQuelaModificacionDelBloqueoFueExitosa() {
         try {
-            System.out.println("🎯 ===== EJECUTANDO: El usuario valida que la modificación del bloqueo fue exitosa =====");
+            System.out.println("🎯 ===== EJECUTANDO: El usuario valida que la modificación fue exitosa =====");
             bloqueoPages.validarModificacionBloqueoExitosa();
-            System.out.println("✅✅✅ Validación exitosa: El bloqueo cambió a estado Amarillo (En Revisión)");
+            System.out.println("✅✅✅ Validación exitosa: El bloqueo cambió a estado Amarillo (Revisión)");
         } catch (Exception e) {
             System.err.println("❌ Error al validar la modificación: " + e.getMessage());
             throw new RuntimeException("Fallo en la validación de la modificación", e);
@@ -433,20 +433,25 @@ public class DefinitionsSteps {
      * 🎯 STEP: El usuario valida que la modificación del bloqueo fue exitosa
      * 
      * Busca la fila con N° Solicitud y RecLoc guardados previamente
-     * Valida que el estado cambió a Amarillo (#F6B113 o #FFD414)
+     * Valida que el estado cambió a Amarillo (#F6B113 o #5314ffff)
      * Resalta los datos encontrados con JavaScript
      */
     @Then("^El usuario valida que se restaron asientos del bloqueo fue exitoso$")
     public void elUsuarioValidaQueLaReduccionDelBloqueoFueExitosa() {
         try {
-            System.out.println("🎯 ===== EJECUTANDO: El usuario valida que la modificación del bloqueo fue exitosa =====");
+            System.out.println("🎯 ===== EJECUTANDO: El usuario valida que la reducción fue exitosa =====");
             bloqueoPages.validarReduccionBloqueoExitosa();
-            System.out.println("✅✅✅ Validación exitosa: El bloqueo cambió a estado Amarillo (En Revisión)");
+            System.out.println("✅✅✅ Validación exitosa: El bloqueo cambió a estado Azul (Modificado)");
         } catch (Exception e) {
-            System.err.println("❌ Error al validar la modificación: " + e.getMessage());
-            throw new RuntimeException("Fallo en la validación de la modificación", e);
+            System.err.println("❌ Error al validar la reduccion: " + e.getMessage());
+            throw new RuntimeException("Fallo en la validación de la reduccion", e);
         }
     }
+
+
+
+
+
 
 
     @And("^El usuario navega a  Administracion de Bloqueos y Bloqueos Creados$")
@@ -459,7 +464,17 @@ public class DefinitionsSteps {
 
 
 
-
+    @Then("^El usuario valida que el ajuste del bloqueo fue exitoso$")
+    public void elUsuarioValidaQueElAjusteDelBloqueoFueExitoso() {
+        try {
+            System.out.println("🎯 ===== EJECUTANDO: El usuario valida que el ajuste del bloqueo fue exitoso =====");
+            bloqueoPages.validarBloqueoExitosa();
+            System.out.println("✅✅✅ Validación exitosa: El bloqueo cambió de estado correctamente");
+        } catch (Exception e) {
+            System.err.println("❌ Error al validar el ajuste: " + e.getMessage());
+            throw new RuntimeException("Fallo en la validación del ajuste", e);
+        }
+    }
 
 
 

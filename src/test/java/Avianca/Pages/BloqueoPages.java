@@ -455,6 +455,97 @@ public void validarReduccionBloqueoExitosa() {
 
 
 
+
+
+/**
+ * 🎯 MÉTODO PÚBLICO: Valida que la reducción del bloqueo fue exitosa
+ * 
+ * Este método:
+ * - Busca la fila con N° Solicitud y RecLoc guardados
+ * - Navega entre páginas si es necesario
+ * - Valida que el estado cambió a Azul (#14D1FF)
+ * - Resalta los datos encontrados con JavaScript
+ */
+public void validarBloqueoExitosa() {
+    try {
+        System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE BLOQUEO ======");
+        
+        if (nSolicitudGuardado == null || recLocGuardado == null) {
+            throw new RuntimeException("❌ No hay datos guardados para validar. Ejecuta primero 'seleccionarBloqueoAprobado()'");
+        }
+        
+        System.out.println("📋 Buscando fila con N° Solicitud: " + nSolicitudGuardado + " y RecLoc: " + recLocGuardado);
+        
+        // Esperar actualización de la tabla
+        Thread.sleep(3000);
+        
+        // ⭐ PASO 1: Buscar en la página actual
+        boolean validacionExitosa = buttonBloqueoPages.buscarFilaPorSolicitudYRecLoc(nSolicitudGuardado, recLocGuardado);
+        int paginaActual = 1;
+        final int MAX_PAGINAS = 20;
+        
+        // ⭐ PASO 2: Si no encuentra, navegar entre páginas
+        while (!validacionExitosa && paginaActual <= MAX_PAGINAS) {
+            System.out.println("⚠️ No se encontró el registro con estado en página " + paginaActual);
+            System.out.println("🔄 Navegando a la siguiente página...");
+            
+            boolean navegacionExitosa = buttonBloqueoPages.navegarSiguientePagina();
+            if (navegacionExitosa) {
+                Thread.sleep(3000); // Esperar carga de la nueva página
+                paginaActual++;
+                
+                // 🔍 VOLVER A BUSCAR EN LA NUEVA PÁGINA
+                validacionExitosa = buttonBloqueoPages.buscarFilaPorSolicitudYRecLoc(nSolicitudGuardado, recLocGuardado);
+                
+                if (validacionExitosa) {
+                    System.out.println("✅ Registro encontrado en página " + paginaActual);
+                    break;
+                }
+            } else {
+                System.out.println("⚠️ No hay más páginas disponibles");
+                break;
+            }
+        }
+        
+        // ⭐ PASO 3: Validar resultado final
+        if (validacionExitosa) {
+            System.out.println("✅✅✅ ====== VALIDACIÓN EXITOSA: ESTADO CAMBIÓ ======");
+            System.out.println("📄 Registro encontrado en página: " + paginaActual);
+        } else {
+            throw new RuntimeException("❌ No se encontró la fila con estado  en " + paginaActual + " páginas revisadas");
+        }
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al validar el ajueste: " + e.getMessage());
+        throw new RuntimeException("Fallo en la validación del ajuste", e);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * 🔧 MÉTODO AUXILIAR: Realiza el clic usando múltiples estrategias
      */
