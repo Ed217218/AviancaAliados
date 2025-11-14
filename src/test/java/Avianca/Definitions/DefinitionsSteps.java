@@ -330,7 +330,7 @@ public class DefinitionsSteps {
     @When("^El usuario navega a bloqueos$")
     public void elUsuarioNavegaABloqueos() {
         this.bloqueoPages = new BloqueoPages(driver);
-        this.bloqueoPages.navagarAdminBloqueos();
+        this.bloqueoPages.navegarAdminBloqueosTourOperador();
         this.bloqueoPages.navegarBloqueos();
 
     }

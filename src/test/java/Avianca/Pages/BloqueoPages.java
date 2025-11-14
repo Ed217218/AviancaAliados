@@ -76,6 +76,11 @@ public class BloqueoPages {
         this.buttonBloqueoPages.clickAdminBloqueos();
     }
 
+
+    public void navegarAdminBloqueosTourOperador() {
+        this.buttonBloqueoPages.clickAdminBloqueosTourOperador();
+    }
+
     public void navegarBloqueos() {
         this.buttonBloqueoPages.clickBloqueos();
     }

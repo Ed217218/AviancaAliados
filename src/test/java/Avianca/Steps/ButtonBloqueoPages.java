@@ -425,12 +425,44 @@ private WebElement encontrarModificacionMasivaDeNegos() {
 
 
 
+                public void clickAdminBloqueosTourOperador() {
+                    try {            
+                        System.out.println("🔍 Buscando elemento 'Administración de Bloqueos'...");
+                        WebElement elemento = encontrarAdministracionDeBloqueos();
+                        wait.until(ExpectedConditions.visibilityOf(elemento));
+                        wait.until(ExpectedConditions.elementToBeClickable(elemento));
 
+                        if (elemento != null) {
+                            System.out.println("🔍 Elemento encontrado: " + elemento.getText());
+                            System.out.println("✅ Elemento encontrado. Realizando acción...");
+                            
+                            // ✅ PASO 1: RESALTAR EL ELEMENTO EN VERDE
+                            resaltador.resaltarElemento(elemento, 2000); // 2 segundos en verde 
+                            
+                            // ✅ PASO 2: Hacer scroll hasta el elemento
+                            elementInteractions.scrollToElement(elemento);
+                            
+                            // ✅ PASO 3: Esperar que sea clickeable
+                            wait.until(ExpectedConditions.elementToBeClickable(elemento));
+                            
+                            // ✅ PASO 4: Realizar el clic
+                            realizarClicConMultiplesEstrategias(elemento);
+                            
+                            System.out.println("✅ Clic realizado en 'Administración de Bloqueos'");
+                    
+                            // ✅ PASO 5: Esperar a que el submenú se despliegue
+                            Thread.sleep(3000);
 
-            
+                        } else {
+                            throw new RuntimeException("❌ No se encontró el elemento 'Administración de Bloqueos'");
+                        }
 
+                    } catch (Exception e) {
+                        System.err.println("❌ Error en clic sobre 'Administración de Bloqueos': " + e.getMessage());
+                        throw new RuntimeException("Fallo al interactuar con 'Administración de Bloqueos'", e);
+                    }
 
-
+                }   
 
 
 
