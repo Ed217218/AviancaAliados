@@ -317,6 +317,359 @@ public class BloqueoPages {
 
 
 
+        /**
+         * 🎯 MÉTODO PÚBLICO REFACTORIZADO: Valida que la modificación del bloqueo fue exitosa
+         * 
+         * NUEVA LÓGICA:
+         * 1. Detecta página actual
+         * 2. Si está en página 2+, busca primero en página actual
+         * 3. Si no encuentra, retrocede página por página hasta página 1
+         * 4. Si está en página 1, busca avanzando hacia adelante
+         * 
+         * @throws RuntimeException si no encuentra la fila modificada
+         */
+        public void validarModificacionBloqueoExitosa() {
+            try {
+                System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE MODIFICACIÓN ======");
+                
+                if (nSolicitudGuardado == null || recLocGuardado == null) {
+                    throw new RuntimeException("❌ No hay datos guardados para validar. Ejecuta primero 'seleccionarBloqueoAprobado()'");
+                }
+                
+                System.out.println("📋 Buscando fila con:");
+                System.out.println("   • N° Solicitud: " + nSolicitudGuardado);
+                System.out.println("   • RecLoc: " + recLocGuardado);
+                System.out.println("   • Color esperado: AMARILLO (#FFD414)");
+                
+                // Esperar actualización de la tabla
+                Thread.sleep(3000);
+                
+                // ⭐ PASO 1: Detectar página actual
+                int paginaInicial = buttonBloqueoPages.obtenerPaginaActual();
+                System.out.println("📍 Página actual: " + paginaInicial);
+                
+                boolean validacionExitosa = false;
+                
+                // ⭐ PASO 2: Si está en página 2 o superior, buscar en página actual primero
+                if (paginaInicial >= 2) {
+                    System.out.println("🔍 Buscando en página actual (" + paginaInicial + ")...");
+                    validacionExitosa = buttonBloqueoPages.validarFilaConColorAmarillo(nSolicitudGuardado, recLocGuardado);
+                    
+                    if (validacionExitosa) {
+                        System.out.println("✅✅✅ ¡REGISTRO ENCONTRADO EN PÁGINA " + paginaInicial + "!");
+                        return;
+                    }
+                    
+                    // ⭐ PASO 3: Si no encuentra, retroceder página por página
+                    System.out.println("⚠️ No encontrado en página " + paginaInicial + ". Retrocediendo...");
+                    int paginaActual = paginaInicial;
+                    
+                    while (paginaActual > 1) {
+                        boolean retrocedioExitosamente = buttonBloqueoPages.navegarPaginaAnterior();
+                        if (!retrocedioExitosamente) {
+                            break;
+                        }
+                        
+                        Thread.sleep(2000);
+                        paginaActual = buttonBloqueoPages.obtenerPaginaActual();
+                        
+                        System.out.println("🔍 Buscando en página " + paginaActual + "...");
+                        validacionExitosa = buttonBloqueoPages.validarFilaConColorAmarillo(nSolicitudGuardado, recLocGuardado);
+                        
+                        if (validacionExitosa) {
+                            System.out.println("✅✅✅ ¡REGISTRO ENCONTRADO EN PÁGINA " + paginaActual + "!");
+                            return;
+                        }
+                    }
+                }
+                
+                // ⭐ PASO 4: Si está en página 1 (o llegó a ella), buscar avanzando
+                System.out.println("🔍 Búsqueda desde página 1 hacia adelante...");
+                
+                // Asegurar que estamos en página 1
+                if (buttonBloqueoPages.obtenerPaginaActual() != 1) {
+                    buttonBloqueoPages.volverAPaginaUno();
+                }
+                
+                validacionExitosa = buttonBloqueoPages.validarFilaConColorAmarillo(nSolicitudGuardado, recLocGuardado);
+                int paginaActual = 1;
+                final int MAX_PAGINAS = 20;
+                
+                while (!validacionExitosa && paginaActual <= MAX_PAGINAS) {
+                    if (paginaActual > 1) {
+                        System.out.println("⚠️ No encontrado en página " + paginaActual);
+                    }
+                    
+                    System.out.println("🔄 Navegando a página " + (paginaActual + 1) + "...");
+                    boolean navegacionExitosa = buttonBloqueoPages.navegarSiguientePagina();
+                    
+                    if (navegacionExitosa) {
+                        Thread.sleep(2000);
+                        paginaActual = buttonBloqueoPages.obtenerPaginaActual();
+                        
+                        validacionExitosa = buttonBloqueoPages.validarFilaConColorAmarillo(nSolicitudGuardado, recLocGuardado);
+                        
+                        if (validacionExitosa) {
+                            System.out.println("✅✅✅ ¡REGISTRO ENCONTRADO EN PÁGINA " + paginaActual + "!");
+                            break;
+                        }
+                    } else {
+                        System.out.println("⚠️ No hay más páginas disponibles");
+                        break;
+                    }
+                }
+                
+                // ⭐ PASO 5: Validar resultado final
+                if (!validacionExitosa) {
+                    throw new RuntimeException("❌ No se encontró la fila con estado AMARILLO (#FFD414) en ninguna página");
+                }
+                
+                System.out.println("====== FIN VALIDACIÓN DE MODIFICACIÓN ======\n");
+                
+            } catch (Exception e) {
+                System.err.println("❌ Error al validar modificación: " + e.getMessage());
+                throw new RuntimeException("Fallo en la validación de la modificación", e);
+            }
+        }
+
+        /**
+         * 🎯 MÉTODO PÚBLICO REFACTORIZADO: Valida que la reducción del bloqueo fue exitosa
+         * 
+         * NUEVA LÓGICA:
+         * 1. Detecta página actual
+         * 2. Si está en página 2+, busca primero en página actual
+         * 3. Si no encuentra, retrocede página por página hasta página 1
+         * 4. Si está en página 1, busca avanzando hacia adelante
+         * 
+         * @throws RuntimeException si no encuentra la fila reducida
+         */
+        public void validarReduccionBloqueoExitosa() {
+            try {
+                System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE REDUCCIÓN ======");
+                
+                if (nSolicitudGuardado == null || recLocGuardado == null) {
+                    throw new RuntimeException("❌ No hay datos guardados para validar. Ejecuta primero 'seleccionarBloqueoAprobado()'");
+                }
+                
+                System.out.println("📋 Buscando fila con:");
+                System.out.println("   • N° Solicitud: " + nSolicitudGuardado);
+                System.out.println("   • RecLoc: " + recLocGuardado);
+                System.out.println("   • Color esperado: AZUL (#14D1FF)");
+                
+                // Esperar actualización de la tabla
+                Thread.sleep(3000);
+                
+                // ⭐ PASO 1: Detectar página actual
+                int paginaInicial = buttonBloqueoPages.obtenerPaginaActual();
+                System.out.println("📍 Página actual: " + paginaInicial);
+                
+                boolean validacionExitosa = false;
+                
+                // ⭐ PASO 2: Si está en página 2 o superior, buscar en página actual primero
+                if (paginaInicial >= 2) {
+                    System.out.println("🔍 Buscando en página actual (" + paginaInicial + ")...");
+                    validacionExitosa = buttonBloqueoPages.validarFilaConColorAzul(nSolicitudGuardado, recLocGuardado);
+                    
+                    if (validacionExitosa) {
+                        System.out.println("✅✅✅ ¡REGISTRO ENCONTRADO EN PÁGINA " + paginaInicial + "!");
+                        return;
+                    }
+                    
+                    // ⭐ PASO 3: Si no encuentra, retroceder página por página
+                    System.out.println("⚠️ No encontrado en página " + paginaInicial + ". Retrocediendo...");
+                    int paginaActual = paginaInicial;
+                    
+                    while (paginaActual > 1) {
+                        boolean retrocedioExitosamente = buttonBloqueoPages.navegarPaginaAnterior();
+                        if (!retrocedioExitosamente) {
+                            break;
+                        }
+                        
+                        Thread.sleep(2000);
+                        paginaActual = buttonBloqueoPages.obtenerPaginaActual();
+                        
+                        System.out.println("🔍 Buscando en página " + paginaActual + "...");
+                        validacionExitosa = buttonBloqueoPages.validarFilaConColorAzul(nSolicitudGuardado, recLocGuardado);
+                        
+                        if (validacionExitosa) {
+                            System.out.println("✅✅✅ ¡REGISTRO ENCONTRADO EN PÁGINA " + paginaActual + "!");
+                            return;
+                        }
+                    }
+                }
+                
+                // ⭐ PASO 4: Si está en página 1 (o llegó a ella), buscar avanzando
+                System.out.println("🔍 Búsqueda desde página 1 hacia adelante...");
+                
+                // Asegurar que estamos en página 1
+                if (buttonBloqueoPages.obtenerPaginaActual() != 1) {
+                    buttonBloqueoPages.volverAPaginaUno();
+                }
+                
+                validacionExitosa = buttonBloqueoPages.validarFilaConColorAzul(nSolicitudGuardado, recLocGuardado);
+                int paginaActual = 1;
+                final int MAX_PAGINAS = 20;
+                
+                while (!validacionExitosa && paginaActual <= MAX_PAGINAS) {
+                    if (paginaActual > 1) {
+                        System.out.println("⚠️ No encontrado en página " + paginaActual);
+                    }
+                    
+                    System.out.println("🔄 Navegando a página " + (paginaActual + 1) + "...");
+                    boolean navegacionExitosa = buttonBloqueoPages.navegarSiguientePagina();
+                    
+                    if (navegacionExitosa) {
+                        Thread.sleep(2000);
+                        paginaActual = buttonBloqueoPages.obtenerPaginaActual();
+                        
+                        validacionExitosa = buttonBloqueoPages.validarFilaConColorAzul(nSolicitudGuardado, recLocGuardado);
+                        
+                        if (validacionExitosa) {
+                            System.out.println("✅✅✅ ¡REGISTRO ENCONTRADO EN PÁGINA " + paginaActual + "!");
+                            break;
+                        }
+                    } else {
+                        System.out.println("⚠️ No hay más páginas disponibles");
+                        break;
+                    }
+                }
+                
+                // ⭐ PASO 5: Validar resultado final
+                if (!validacionExitosa) {
+                    throw new RuntimeException("❌ No se encontró la fila con estado AZUL (#14D1FF) en ninguna página");
+                }
+                
+                System.out.println("====== FIN VALIDACIÓN DE REDUCCIÓN ======\n");
+                
+            } catch (Exception e) {
+                System.err.println("❌ Error al validar reducción: " + e.getMessage());
+                throw new RuntimeException("Fallo en la validación de la reducción", e);
+            }
+        }
+
+
+
+        /**
+         * 🎯 MÉTODO PÚBLICO REFACTORIZADO: Valida que el bloqueo fue procesado exitosamente
+         * 
+         * NUEVA LÓGICA:
+         * 1. Detecta página actual
+         * 2. Si está en página 2+, busca primero en página actual
+         * 3. Si no encuentra, retrocede página por página hasta página 1
+         * 4. Si está en página 1, busca avanzando hacia adelante
+         * 
+         * Este método busca la fila con N° Solicitud y RecLoc guardados,
+         * navegando inteligentemente entre páginas si es necesario.
+         * 
+         * @throws RuntimeException si no encuentra el registro procesado
+         */
+        public void validarBloqueoExitosa() {
+            try {
+                System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE BLOQUEO ======");
+                
+                if (nSolicitudGuardado == null || recLocGuardado == null) {
+                    throw new RuntimeException("❌ No hay datos guardados para validar. Ejecuta primero 'seleccionarBloqueoAprobado()'");
+                }
+                
+                System.out.println("📋 Buscando fila con:");
+                System.out.println("   • N° Solicitud: " + nSolicitudGuardado);
+                System.out.println("   • RecLoc: " + recLocGuardado);
+                
+                // Esperar actualización de la tabla
+                Thread.sleep(3000);
+                
+                // ⭐ PASO 1: Detectar página actual
+                int paginaInicial = buttonBloqueoPages.obtenerPaginaActual();
+                System.out.println("📍 Página actual: " + paginaInicial);
+                
+                boolean validacionExitosa = false;
+                
+                // ⭐ PASO 2: Si está en página 2 o superior, buscar en página actual primero
+                if (paginaInicial >= 2) {
+                    System.out.println("🔍 Buscando en página actual (" + paginaInicial + ")...");
+                    validacionExitosa = buttonBloqueoPages.buscarFilaPorSolicitudYRecLoc(nSolicitudGuardado, recLocGuardado);
+                    
+                    if (validacionExitosa) {
+                        System.out.println("✅✅✅ ¡REGISTRO ENCONTRADO EN PÁGINA " + paginaInicial + "!");
+                        System.out.println("====== FIN VALIDACIÓN DE BLOQUEO ======\n");
+                        return;
+                    }
+                    
+                    // ⭐ PASO 3: Si no encuentra, retroceder página por página
+                    System.out.println("⚠️ No encontrado en página " + paginaInicial + ". Retrocediendo...");
+                    int paginaActual = paginaInicial;
+                    
+                    while (paginaActual > 1) {
+                        boolean retrocedioExitosamente = buttonBloqueoPages.navegarPaginaAnterior();
+                        if (!retrocedioExitosamente) {
+                            break;
+                        }
+                        
+                        Thread.sleep(2000);
+                        paginaActual = buttonBloqueoPages.obtenerPaginaActual();
+                        
+                        System.out.println("🔍 Buscando en página " + paginaActual + "...");
+                        validacionExitosa = buttonBloqueoPages.buscarFilaPorSolicitudYRecLoc(nSolicitudGuardado, recLocGuardado);
+                        
+                        if (validacionExitosa) {
+                            System.out.println("✅✅✅ ¡REGISTRO ENCONTRADO EN PÁGINA " + paginaActual + "!");
+                            System.out.println("====== FIN VALIDACIÓN DE BLOQUEO ======\n");
+                            return;
+                        }
+                    }
+                }
+                
+                // ⭐ PASO 4: Si está en página 1 (o llegó a ella), buscar avanzando
+                System.out.println("🔍 Búsqueda desde página 1 hacia adelante...");
+                
+                // Asegurar que estamos en página 1
+                if (buttonBloqueoPages.obtenerPaginaActual() != 1) {
+                    buttonBloqueoPages.volverAPaginaUno();
+                }
+                
+                validacionExitosa = buttonBloqueoPages.buscarFilaPorSolicitudYRecLoc(nSolicitudGuardado, recLocGuardado);
+                int paginaActual = 1;
+                final int MAX_PAGINAS = 20;
+                
+                while (!validacionExitosa && paginaActual <= MAX_PAGINAS) {
+                    if (paginaActual > 1) {
+                        System.out.println("⚠️ No encontrado en página " + paginaActual);
+                    }
+                    
+                    System.out.println("🔄 Navegando a página " + (paginaActual + 1) + "...");
+                    boolean navegacionExitosa = buttonBloqueoPages.navegarSiguientePagina();
+                    
+                    if (navegacionExitosa) {
+                        Thread.sleep(2000);
+                        paginaActual = buttonBloqueoPages.obtenerPaginaActual();
+                        
+                        validacionExitosa = buttonBloqueoPages.buscarFilaPorSolicitudYRecLoc(nSolicitudGuardado, recLocGuardado);
+                        
+                        if (validacionExitosa) {
+                            System.out.println("✅✅✅ ¡REGISTRO ENCONTRADO EN PÁGINA " + paginaActual + "!");
+                            break;
+                        }
+                    } else {
+                        System.out.println("⚠️ No hay más páginas disponibles");
+                        break;
+                    }
+                }
+                
+                // ⭐ PASO 5: Validar resultado final
+                if (!validacionExitosa) {
+                    throw new RuntimeException("❌ No se encontró el registro en ninguna página (buscó en " + paginaActual + " páginas)");
+                }
+                
+                System.out.println("✅✅✅ ====== VALIDACIÓN EXITOSA: REGISTRO PROCESADO ======");
+                System.out.println("📄 Registro encontrado en página: " + paginaActual);
+                System.out.println("====== FIN VALIDACIÓN DE BLOQUEO ======\n");
+                
+            } catch (Exception e) {
+                System.err.println("❌ Error al validar el ajuste: " + e.getMessage());
+                throw new RuntimeException("Fallo en la validación del ajuste", e);
+            }
+        }
+
 
 
 
@@ -329,7 +682,7 @@ public class BloqueoPages {
  * - Navega entre páginas si es necesario
  * - Valida que el estado cambió a Amarillo (#F6B113 o #FFD414)
  * - Resalta los datos encontrados con JavaScript
- */
+ 
 public void validarModificacionBloqueoExitosa() {
     try {
         System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE MODIFICACIÓN ======");
@@ -384,7 +737,7 @@ public void validarModificacionBloqueoExitosa() {
         throw new RuntimeException("Fallo en la validación de la modificación", e);
     }
 }
-
+*/
 
 
 /**
@@ -395,7 +748,7 @@ public void validarModificacionBloqueoExitosa() {
  * - Navega entre páginas si es necesario
  * - Valida que el estado cambió a Azul (#14D1FF)
  * - Resalta los datos encontrados con JavaScript
- */
+ 
 public void validarReduccionBloqueoExitosa() {
     try {
         System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE REDUCCIÓN ======");
@@ -450,13 +803,7 @@ public void validarReduccionBloqueoExitosa() {
         throw new RuntimeException("Fallo en la validación de la reducción", e);
     }
 }
-
-
-
-
-
-
-
+*/
 
 
 
@@ -470,7 +817,7 @@ public void validarReduccionBloqueoExitosa() {
  * - Navega entre páginas si es necesario
  * - Valida que el estado cambió a Azul (#14D1FF)
  * - Resalta los datos encontrados con JavaScript
- */
+ 
 public void validarBloqueoExitosa() {
     try {
         System.out.println("🔍 ====== INICIANDO VALIDACIÓN DE BLOQUEO ======");
@@ -525,27 +872,7 @@ public void validarBloqueoExitosa() {
         throw new RuntimeException("Fallo en la validación del ajuste", e);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+*/
 
 
 

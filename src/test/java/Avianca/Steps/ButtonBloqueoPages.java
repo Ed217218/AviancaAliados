@@ -937,6 +937,167 @@ private WebElement encontrarModificacionMasivaDeNegos() {
             return false;
         }
 
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Detecta el número de página actual del paginador
+ * 
+ * @return int con el número de página actual (1, 2, 3, etc.)
+ */
+public int obtenerPaginaActual() {
+    By[] localizadores = {
+        By.xpath("//mat-paginator[@id='paginatorBusqueda']//div[contains(@class, 'mat-mdc-paginator-range-label')]"),
+        By.xpath("//div[contains(@class, 'mat-mdc-paginator-range-label')]"),
+        By.cssSelector("div.mat-mdc-paginator-range-label"),
+        By.xpath("//mat-paginator//div[contains(text(), 'de')]")
+    };
+    
+    try {
+        WebElement labelPaginador = elementFinder.encontrarElemento(localizadores);
+        if (labelPaginador != null) {
+            // Texto esperado: "1 – 5 de 50" o "6 – 10 de 50"
+            String textoCompleto = labelPaginador.getText().trim();
+            System.out.println("📄 Texto del paginador: " + textoCompleto);
+            
+            // Extraer el primer número del rango
+            String[] partes = textoCompleto.split("–");
+            if (partes.length > 0) {
+                int primerRegistro = Integer.parseInt(partes[0].trim());
+                
+                // Calcular página actual (asumiendo 5 registros por página)
+                int registrosPorPagina = 5;
+                int paginaActual = (primerRegistro - 1) / registrosPorPagina + 1;
+                
+                System.out.println("📍 Página actual detectada: " + paginaActual);
+                return paginaActual;
+            }
+        }
+    } catch (Exception e) {
+        System.err.println("⚠️ Error al detectar página actual: " + e.getMessage());
+    }
+    
+    // Si falla, asumir página 1
+    return 1;
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Navega a la página anterior usando el paginador
+ * 
+ * @return true si la navegación fue exitosa, false si ya está en página 1
+ */
+public boolean navegarPaginaAnterior() {
+    By[] localizadores = {
+        By.xpath("//button[contains(@class, 'mat-mdc-paginator-navigation-previous') and not(@disabled)]"),
+        By.xpath("//button[@aria-label='Página anterior' and not(@disabled)]"),
+        By.cssSelector("button.mat-mdc-paginator-navigation-previous:not([disabled])"),
+        By.xpath("//mat-paginator[@id='paginatorBusqueda']//button[contains(@class, 'navigation-previous') and not(@disabled)]")
+    };
+    
+    try {
+        WebElement botonAnterior = elementFinder.encontrarElemento(localizadores);
+        if (botonAnterior != null && botonAnterior.isEnabled()) {
+            System.out.println("⬅️ Haciendo clic en 'Página anterior'...");
+            resaltador.resaltarElemento(botonAnterior, 1000);
+            realizarClicConMultiplesEstrategias(botonAnterior);
+            Thread.sleep(2000); // Esperar carga de la página
+            return true;
+        }
+    } catch (Exception e) {
+        System.err.println("❌ No se puede retroceder más (ya estás en página 1)");
+    }
+    return false;
+}
+
+/**
+ * 🔧 MÉTODO AUXILIAR: Vuelve a la página 1 del paginador
+ * 
+ * @return true si llegó a página 1, false si hubo error
+ */
+public boolean volverAPaginaUno() {
+    try {
+        System.out.println("🔄 Volviendo a página 1...");
+        int paginaActual = obtenerPaginaActual();
+        
+        if (paginaActual == 1) {
+            System.out.println("✅ Ya estás en página 1");
+            return true;
+        }
+        
+        // Retroceder hasta llegar a página 1
+        int intentos = 0;
+        final int MAX_INTENTOS = 50; // Seguridad
+        
+        while (paginaActual > 1 && intentos < MAX_INTENTOS) {
+            boolean navegacionExitosa = navegarPaginaAnterior();
+            if (!navegacionExitosa) {
+                break;
+            }
+            
+            Thread.sleep(2000);
+            paginaActual = obtenerPaginaActual();
+            intentos++;
+            
+            System.out.println("📄 Ahora en página: " + paginaActual);
+        }
+        
+        if (paginaActual == 1) {
+            System.out.println("✅ Llegaste a página 1 exitosamente");
+            return true;
+        } else {
+            System.err.println("⚠️ No se pudo llegar a página 1");
+            return false;
+        }
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al volver a página 1: " + e.getMessage());
+        return false;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * 🔧 MÉTODO PÚBLICO: Hace clic en el botón "edit" dentro de una fila
  * 
